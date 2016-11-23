@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"net"
 	"os"
 	"github.com/google/gopacket"
 	_ "github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
 	"github.com/spf13/viper"
+	"golang.org/x/sys/windows/svc/eventlog"
 )
 
 var (
@@ -20,32 +20,36 @@ var (
 	snaplen  int32 = 1600
 	host     string
 	port     string
+	
+	Logger *eventlog.Log
 )
 
 func main() {
-
-	//viper.SetDefault("host", "localhost")
-	//viper.SetDefault("port", "6767")
-	//viper.SetDefault("device", "none")
-	//viper.SetDefault("filter", "udp and port 68 and ((udp[250:1] = 0x3) or (udp[250:1] = 0x5))")
-
+    //Setup logging
+	const name = "DHCP-Forwarder"
+	const supports = eventlog.Error | eventlog.Warning | eventlog.Info
+	eventlog.Remove(name)
+	err := eventlog.InstallAsEventCreate(name, supports)
+	checkError(err)
+	defer func() {
+		err = eventlog.Remove(name)
+		checkError(err)
+	}()
+	
+	Logger, err = eventlog.Open(name)
+	checkError(err)
+	defer Logger.Close()
+	
 	viper.SetConfigName("DHCP-Forwarder") // will match DHCP-Forwarder.{toml,json} etc.
 	
 	pwd, err := os.Getwd()
-    if err != nil {
-        fmt.Println(err)
-        os.Exit(1)
-    }
-    fmt.Println("PWD: ", pwd)
-	
-	//for _, dir := range confDirs {
-	//	viper.AddConfigPath(dir)
-	//}
+    checkError(err)
+
 	viper.AddConfigPath(pwd)
 	
-	if err := viper.ReadInConfig(); err != nil {
-		panic(fmt.Errorf("Fatal error config file: %s \n", err))
-	}
+	err = viper.ReadInConfig()
+	checkError(err)
+	
 	host = viper.GetString("Host")
 	port = viper.GetString("Port")
 	dev = viper.GetString("Device")
@@ -56,22 +60,22 @@ func main() {
 	checkError(err)
 
 	conn, err = net.DialUDP("udp", nil, udpAddr)
-	checkError(err)	
+	checkError(err)
 	
-	if handle, err := pcap.OpenLive(dev, snaplen, true, pcap.BlockForever); err != nil {
-		panic(err)
-	} else if err := handle.SetBPFFilter(filter + exclude); err != nil {
-		panic(err)
-	} else {
-		fmt.Println(os.Args[0] + " started")
-		fmt.Println("Listening on device " + dev)
-		fmt.Println("BPF set to " + filter + exclude)
-		fmt.Println("Forwarding packets to " + host + ":" + port)
+	handle, err := pcap.OpenLive(dev, snaplen, true, pcap.BlockForever)
+	checkError(err)
+	
+	err = handle.SetBPFFilter(filter + exclude)
+	checkError(err)
+	
+	Logger.Info(1, os.Args[0] + " started")
+	Logger.Info(1, "BPF set to: " + filter + exclude)
+	Logger.Info(1, "Listening on device: " + dev)
+	Logger.Info(1, "Forwarding packets to: " + host + " on udp port " + port)
 
-		packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
-		for packet := range packetSource.Packets() {
-			handlePacket(packet)
-		}
+	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
+	for packet := range packetSource.Packets() {
+		handlePacket(packet)
 	}
 }
 
@@ -83,13 +87,13 @@ func handlePacket(p gopacket.Packet) {
 		// The endpoint might not be listening yet.
 	}
 	if err := p.ErrorLayer(); err != nil {
-		fmt.Println("Error decoding some part of the packet:", err)
+		Logger.Warning(2, "Error decoding some part of the packet.")
 	}
 }
 
 func checkError(err error) {
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Fatal error ", err.Error())
-		os.Exit(1)
+		Logger.Error(3, err.Error())
+		panic(err.Error())
 	}
 }
