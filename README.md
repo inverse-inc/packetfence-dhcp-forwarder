@@ -1,4 +1,5 @@
 DHCP-Forwarder
+==============
 
 This tool captures and forwards a subset of DHCP traffic (specifically DHCPREQUEST and DHCPACK) from a Windows DHCP server to a destination IP and port.
 Alternatively, IP Helpers can be configured on each switch of an infrastructure to forward broadcast only packets. Those contain all types of DHCP packets but less DHCPACK, which are a confirmation of DHCPREQUEST and confirms lease ownership.
