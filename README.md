@@ -15,13 +15,13 @@ Binaries
 ========
 dhcp-forwarder.exe
 ------------------
-This tool captures and forward DHCP traffic (DHCPREQUEST and DHCPACK, specifically) from a Windows DHCP server to PacketFence. 
+This tool captures and forwards DHCP traffic (DHCPREQUEST and DHCPACK, specifically) from a Windows DHCP server to PacketFence. 
 
 DHCPREQUEST and DHCPACK packets are the ones being the most important for PacketFence to link MAC to IP addresses and switch location and help Fingerbank to fingerprint the Operating System running on the device. 
 
 This fingerprinting and localisation process helps a lot to determine violation triggers.
  
-With The help of DHCP-Forwarder, those DHCP packets can be obtained directly and easily from the source. 
+With the help of DHCP-Forwarder, those DHCP packets can be obtained directly and easily from the source. 
 
 Alternatively, IP helpers can be configured on each switch to forward DHCP traffic to PacketFence, but only broadcast packets can be captured by them, which is less efficient. Deploying DHCP-Forwarder is simple and centralized.
 
@@ -67,24 +67,23 @@ Native Compilation under x64
 ----------------------------
 You will need:
 
-* TDM-GCC: https://sourceforge.net/projects/tdm-gcc/files/latest/download
-* WinPcap Development edition: https://sourceforge.net/projects/tdm-gcc/files/latest/download
-* Git: https://git-scm.com/download/win
-* Go: https://golang.org/dl/
+* [TDM-GCC](https://sourceforge.net/projects/tdm-gcc/files/latest/download)
+* [WinPcap Development edition](https://sourceforge.net/projects/tdm-gcc/files/latest/download)
+* [Git](https://git-scm.com/download/win)
+* [Go](https://golang.org/dl/)
 
-You will need to generate WinPCAP x64 dependencies yourself (as of November 2016. Please advise if it's not the case anymore.
+You will need to generate WinPCAP x64 dependencies yourself ([as of November 2016](https://stackoverflow.com/questions/38047858/compile-gopacket-on-windows-64bit). Please advise if it's not the case anymore).
 
-https://stackoverflow.com/questions/38047858/compile-gopacket-on-windows-64bit
 
-To generate the installer, you will also need NSIS: https://sourceforge.net/projects/nsis/files/
+To generate the installer, you will also need [NSIS](https://sourceforge.net/projects/nsis/files/)
 
 
 Get the sources
 ---------------
 In a shell, under c:\go\src or wherever you installed GO, download the sources through installed git:
-
+```
 git clone https://github.com/inverse-inc/packetfence-dhcp-forwarder.git
-
+```
 dhcp-forwarder-config-generator:
 Generates DHCP-Forwarder.toml configuration based on user selection of modified "getmac /fo csv /v" output, since it is currently impossible to use gopacket to list human readable interface name.
 Asks for destination ip and port.
@@ -126,7 +125,7 @@ You now have the binaries required to build the installer.
 Create the installer
 --------------------
 To create the installer, you need to download and install the following:
-NSIS: http://prdownloads.sourceforge.net/nsis/nsis-3.0-setup.exe?download
+[NSIS](http://prdownloads.sourceforge.net/nsis/nsis-3.0-setup.exe?download)
 
 Place yourself in the root of the git downloaded directory:
 ```
@@ -143,7 +142,7 @@ Place yourself in the installer directory:
 cd dhcp-forwarder-installer
 ```
  * extract nssm.exe from [here](https://nssm.cc/release/nssm-2.24.zip)
- * move WinPcap_4_1_3.exe here.
+ * move WinPcap_4_1_3.exe to the current working directory
 
 The following files should be present under current working directory:
  * dhcp-forwarder-installer/dhcp-forwarder-config-generator.exe
