@@ -2,11 +2,11 @@ DHCP-Forwarder
 ==============
 
 This tool captures and forwards a subset of DHCP traffic (specifically DHCPREQUEST and DHCPACK) from a Windows DHCP server to a destination IP and port.
-Alternatively, IP Helpers can be configured on each switch of an infrastructure to forward broadcast only packets. Those contain all types of DHCP packets but less DHCPACK, which are a confirmation of DHCPREQUEST and confirms lease ownership.
+Alternatively, IP Helpers can be configured on each switch of an infrastructure to forward broadcast only packets. Those contain all types of DHCP packets but less to none DHCPACK which confirms lease ownership.
 
-DHCP traffic is usefull to PacketFence to bind MAC adresses and IP addresses, while also helping Fingerbank Fingerprinting process. Again, the only usefull packets are DHCPREQUEST and DHCPACK.
+DHCP traffic is useful to PacketFence to bind MAC adresses and IP addresses, while also helping Fingerbank's fingerprinting process. Again, the only useful packets to PacketFence are DHCPREQUEST and DHCPACK.
 
-In short, if DHCP-Forwarder can be deployed centrally, it should be done. In that case, only usefull packets are captured at the source and forwarded where needed, which reduces that transport, processing and storage cost of useless packets, while supressing the need of deploying IP Helpers everywhere.
+In short, if DHCP-Forwarder can be deployed centrally, it should be done. In that case, only useful packets are captured and forwarded where needed, which reduces configuration, transport, processing and storage costs for useless packets, while supressing the need to process them for neglection at the destination host.
 
 [Download the installer here.](https://inverse.ca/downloads/PacketFence/windows-dhcp-forwarder/DHCP%20Forwarder%20Installer.exe)
 
