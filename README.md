@@ -165,7 +165,7 @@ Eventlog
 --------
 The Event logs should help a lot in finding the cause the service not starting. Have you changed your networking card since Installation? Disconnected a cable disconnected? Had the server sleep and resumed from suspend?
 
-Alternatively, you can stop the service from wWindows Service Manager and debug from the command line. Launch an adminstrative command line and place yourself under "C:\Program Files (x86)\DHCP Forwarder"
+Alternatively, you can stop the service from Windows Service Manager and debug from the command line. Launch an adminstrative command line and place yourself under "C:\Program Files (x86)\DHCP Forwarder"
 
 To get access to the service manager:
 ```
