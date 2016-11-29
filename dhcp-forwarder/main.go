@@ -25,7 +25,7 @@ var (
 )
 
 func main() {
-    //Setup logging
+	//Setup logging
 	const name = "DHCP-Forwarder"
 	const supports = eventlog.Error | eventlog.Warning | eventlog.Info
 	eventlog.Remove(name)

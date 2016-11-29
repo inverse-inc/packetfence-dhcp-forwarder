@@ -14,29 +14,21 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-type TomlConfig struct {
+type Configuration struct {
 	Host   string
 	Port   int
 	Device string
 	Filter string
 }
 
-var Config TomlConfig
+var Config Configuration
 
 func main() {
 	fmt.Printf("!!! You can run this program anytime from %s !!!\n\n", os.Args[0])
-	
 	//Set values to defaults. 0x3: DHCPREQUEST. 0x5: DHCPACK. Those are the only ones required by PacketFence to track and fingerprint devices from DHCP.
 	Config.Filter = "udp and port 68 and ((udp[250:1] = 0x3) or (udp[250:1] = 0x5))"
 	SelectInterface()
 	SelectRemoteHostAndPort()
-	
-	//fmt.Printf("Actual configuration:\n")
-	//fmt.Printf("Config.filter\t%v\n", Config.Filter)
-	//fmt.Printf("Config.host\t%v\n", Config.Host)
-	//fmt.Printf("Config.port\t%v\n", Config.Port)
-	//fmt.Printf("Config.device\t%v\n", Config.Device)
-		
 	SaveConfig("DHCP-Forwarder.toml")
 }
 
