@@ -1,26 +1,26 @@
 package main
 
 import (
-	"net"
-	"os"
 	"github.com/google/gopacket"
 	_ "github.com/google/gopacket/layers"
 	"github.com/google/gopacket/pcap"
 	"github.com/spf13/viper"
 	"golang.org/x/sys/windows/svc/eventlog"
+	"net"
+	"os"
 )
 
 var (
 	confDirs = [3]string{"/etc/DHCP-Forwarder/", "$HOME/.DHCP-Forwarder", "."}
-	
-	filter   string
-	exclude  string
-	conn     *net.UDPConn
-	dev      string
-	snaplen  int32 = 1600
-	host     string
-	port     string
-	
+
+	filter  string
+	exclude string
+	conn    *net.UDPConn
+	dev     string
+	snaplen int32 = 1600
+	host    string
+	port    string
+
 	Logger *eventlog.Log
 )
 
@@ -35,21 +35,21 @@ func main() {
 		err = eventlog.Remove(name)
 		checkError(err)
 	}()
-	
+
 	Logger, err = eventlog.Open(name)
 	checkError(err)
 	defer Logger.Close()
-	
+
 	viper.SetConfigName("DHCP-Forwarder") // will match DHCP-Forwarder.{toml,json} etc.
-	
+
 	pwd, err := os.Getwd()
-    checkError(err)
+	checkError(err)
 
 	viper.AddConfigPath(pwd)
-	
+
 	err = viper.ReadInConfig()
 	checkError(err)
-	
+
 	host = viper.GetString("Host")
 	port = viper.GetString("Port")
 	dev = viper.GetString("Device")
@@ -61,17 +61,17 @@ func main() {
 
 	conn, err = net.DialUDP("udp", nil, udpAddr)
 	checkError(err)
-	
+
 	handle, err := pcap.OpenLive(dev, snaplen, true, pcap.BlockForever)
 	checkError(err)
-	
+
 	err = handle.SetBPFFilter(filter + exclude)
 	checkError(err)
-	
-	Logger.Info(1, os.Args[0] + " started")
-	Logger.Info(1, "BPF set to: " + filter + exclude)
-	Logger.Info(1, "Listening on device: " + dev)
-	Logger.Info(1, "Forwarding packets to: " + host + " on udp port " + port)
+
+	Logger.Info(1, os.Args[0]+" started")
+	Logger.Info(1, "BPF set to: "+filter+exclude)
+	Logger.Info(1, "Listening on device: "+dev)
+	Logger.Info(1, "Forwarding packets to: "+host+" on udp port "+port)
 
 	packetSource := gopacket.NewPacketSource(handle, handle.LinkType())
 	for packet := range packetSource.Packets() {
