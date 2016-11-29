@@ -84,15 +84,16 @@ In a shell, under c:\go\src or wherever you installed GO, download the sources t
 git clone https://github.com/inverse-inc/packetfence-dhcp-forwarder.git
 ```
 dhcp-forwarder-config-generator:
-Generates DHCP-Forwarder.toml configuration based on user selection of modified "getmac /fo csv /v" output, since it is currently impossible to use gopacket to list human readable interface name.
-Asks for destination ip and port.
-The configuration file contains preconfigured BPF for DHCPREQUESTS(3) and DHCPACK(5). That can be modified directly in the configuration file.
+
+* Generates DHCP-Forwarder.toml configuration based on user selection of modified "getmac /fo csv /v" output, since it is currently impossible to use gopacket to list human readable interface name.
+* Asks for destination ip and port.
+* Generated a preconfigured BPF for DHCPREQUESTS(3) and DHCPACK(5). That filter can be modified directly in the configuration file.
 
 Notes: Wireless device selection will not work.
 
 
 dhcp-forwarder:
-Takes DHCP-Forwarder.toml from the working directory and sends captured udp packet to configured destination host and port.
+Takes DHCP-Forwarder.toml from the working directory and sends captured UDP packet to configured destination host and port.
 
 
 dhcp-forwarder-installer:
@@ -201,5 +202,5 @@ Note: The configured interface needs to be connected. If you need to change the 
 
 History:
 ===========
-* DHCP Forwarder is based on go-listener (https://github.com/louismunro/go-listener) which itself is based on the udp reflector concept.
+* DHCP Forwarder is based on go-listener (https://github.com/louismunro/go-listener) which itself is based on the UDP reflector concept.
 
