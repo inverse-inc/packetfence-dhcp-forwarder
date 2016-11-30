@@ -5,7 +5,7 @@ Forwarder machine:
 Core 2 duo 2.4ghz 
 
 
-We injected 1720 pps of DHCP traffic for 30 seconds without any packet being dropped and the forwarding machine having a cpu never being more impacted then 2%-5%, including system time processing the packets.
+We injected an everage of 1720 pps of DHCP traffic for around 30 seconds without any packet being dropped and the forwarding machine never got impacted of more then 2%-5% cpu hit, including system time to process the packets.
 
 
 Tests
