@@ -6,7 +6,7 @@ Alternatively, IP Helpers can be configured on each switch of an infrastructure 
 
 DHCP traffic is useful to PacketFence to bind MAC adresses and IP addresses, while also helping Fingerbank's fingerprinting process. Again, the only useful packets to PacketFence are DHCPREQUEST and DHCPACK.
 
-In short, if DHCP-Forwarder can be deployed centrally, it should be done. In that case, only useful packets are captured and forwarded where needed, which reduces configuration, transport, processing and storage costs for useless packets, while supressing the need to process them for neglection at the destination host.
+In short, if DHCP-Forwarder can be deployed centrally, it should be done. In that case, only useful packets are captured and forwarded where needed, which reduces configuration, transport, processing and storage costs for useless packets, while removing the need to process them for neglection at the destination host.
 
 [Download the installer here.](https://inverse.ca/downloads/PacketFence/windows-dhcp-forwarder/DHCP%20Forwarder%20Installer.exe)
 
@@ -17,7 +17,7 @@ dhcp-forwarder.exe
 ------------------
 This tool captures and forwards DHCP traffic (DHCPREQUEST and DHCPACK, specifically) from a Windows DHCP server to PacketFence. 
 
-DHCPREQUEST and DHCPACK packets are the ones being the most important for PacketFence to link MAC to IP addresses and switch location and help Fingerbank to fingerprint the Operating System running on the device. 
+DHCPREQUEST and DHCPACK packets are the ones being the most important for PacketFence to link MAC to IP addresses and switch location and help Fingerbank to fingerprint the operating system running on the device. 
 
 This fingerprinting and localisation process helps a lot to determine violation triggers.
  
@@ -52,11 +52,11 @@ The installer
 -------------
 The installer will:
 
-1. Install WinPCAP
-2. Install all packaged files under "C:\Program Files (x86)\DHCP Forwarder"
-3. Run dhcp-forwarder-config-generator.exe which generates a configuration file in installation directory.
-4. Install dhcp-forwarder.exe as a service with the help of nssm
-5. Start dhcp-forwarder.exe with the help of nssm.
+1. install WinPCAP
+2. install all packaged files under "C:\Program Files (x86)\DHCP Forwarder"
+3. run dhcp-forwarder-config-generator.exe which generates a configuration file in installation directory
+4. install dhcp-forwarder.exe as a service with the help of nssm
+5. start dhcp-forwarder.exe with the help of nssm.
 
 
 
@@ -89,7 +89,7 @@ Generates DHCP-Forwarder.toml configuration based on user selection of modified 
 Asks for destination ip and port.
 The configuration file contains preconfigured BPF for DHCPREQUESTS(3) and DHCPACK(5). That can be modified directly in the configuration file.
 
-Notes: Wireless device selection will not work.
+Notes: wireless device selection will not work.
 
 
 dhcp-forwarder:
@@ -104,7 +104,7 @@ Files are installed under "C:\Program Files (x86)\DHCP Forwarder".
 
 Compilation
 -----------
-Once you have the sources and the tools for Native compilations under c:\go\src\
+Once you have the sources and the tools for native compilations under c:\go\src\
 
 In a terminal, do the following:
 ```
@@ -163,7 +163,7 @@ Troubleshoot
 ============
 Eventlog
 --------
-The Event logs should help a lot in finding the cause the service not starting. Have you changed your networking card since Installation? Disconnected a cable disconnected? Had the server sleep and resumed from suspend?
+The Event logs should help a lot in finding the cause the service not starting. Have you changed your networking card since installation? Disconnected a cable disconnected? Had the server sleep and resumed from suspend?
 
 Alternatively, you can stop the service from wWindows Service Manager and debug from the command line. Launch an adminstrative command line and place yourself under "C:\Program Files (x86)\DHCP Forwarder"
 
@@ -189,7 +189,7 @@ The following commands should help:
 * nssm status DHCP-Forwarder (should show a running state)
 * nssm edit DHCP-Forwarder
 
-The service is run with default System account. Edit accordingly.
+The service is executed with default System account. Edit accordingly.
 
 dhcp-forwarder
 --------------
@@ -197,7 +197,7 @@ dhcp-forwarder
 * If nssm shows a status different then running, you can launch manually dhcp-forwarder from its working directory from the command line. 
 That application should give you more details about the reasons the service is failing. 
 
-Note: The configured interface needs to be connected. If you need to change the interface or destination information, you should rerun dhcp-forwarder-config-generator.exe from a command line in its program files folder.
+Note: The configured interface needs to be connected. If you need to change the interface or destination information, you should execute dhcp-forwarder-config-generator.exe from a command line in its program files folder to regenerate a clean configuration.
 
 
 History:
