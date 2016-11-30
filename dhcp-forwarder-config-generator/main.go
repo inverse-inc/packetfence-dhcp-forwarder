@@ -37,7 +37,8 @@ func SelectInterface() {
 		cmdOut []byte
 		err    error
 	)
-
+	//Unfortunately, gopacket device names were the same as their descriptions, so it was not possible to obtain
+	//NIC's UUID directly and save it. getmac is available since WinXP, and provides the UID.
 	cmdName := "getmac"
 	cmdArgs := []string{"/fo", "csv", "/v"}
 
@@ -74,6 +75,8 @@ func SelectInterface() {
 			if _, err := fmt.Scan(&InterfaceIndex); err != nil {
 				fmt.Printf("Error. %v\n", err)
 			} else if 0 <= InterfaceIndex && InterfaceIndex < len(rawCSVdata) {
+				//NIC's UID returned needs to be fixated by replacing Tcpip in it's name by NPF
+				//NPF is WinPCAP device's driver name equivalent to the system's device.
 				Config.Device = strings.Replace(rawCSVdata[InterfaceIndex][3], "Tcpip", "NPF", 1)
 				break
 			} else {
