@@ -7,7 +7,7 @@ Alternatively, IP Helpers can be configured on each switch of an infrastructure 
 
 DHCP traffic is useful to PacketFence to link MAC adresses and IP addresses, while also helping Fingerbank's fingerprinting process. Again, the only useful packets to PacketFence are DHCPREQUEST and DHCPACK.
 
-In short, if DHCP-Forwarder can be deployed centrally, it should be done. In that case, only useful packets are captured and forwarded from the source, which reduces configuration, transport, processing and storage costs of useless packets, while supressing the need to process them to actually neglect them at the destination host.
+In short, if DHCP-Forwarder can be deployed centrally, it should be done. In that case, only useful packets are captured and forwarded from the source, which reduces configuration, transport, processing and storage costs of useless packets, while removing the need to process them to actually neglect them at the destination host.
 
 [Download the installer here.](https://inverse.ca/downloads/PacketFence/windows-dhcp-forwarder/DHCP%20Forwarder%20Installer.exe)
 
@@ -36,18 +36,18 @@ dhcp-forwarder-config-generator.exe
 -----------------------------------
 Does:
 
-1. Ask for Network Interface Card name and converts it to UUID that will be stored
-2. Ask for IP address to which captured traffic will be send to
-3. Ask for UDP  port to which captured traffic will be sent to.
-4. Store default filter value, which selects DHCPACK and DHCPREQUESTS in a DHCP mask.
-5. Store those values in DHCP-Forwarder.toml in the working directory.
+1. ask for Network Interface Card name and converts it to UUID that will be stored
+2. ask for IP address to which captured traffic will be send to
+3. ask for UDP  port to which captured traffic will be sent to
+4. store default filter value, which selects DHCPACK and DHCPREQUESTS in a DHCP mask
+5. store those values in DHCP-Forwarder.toml in the working directory.
 
-Note: Do not select a Wireless device, it will not work.
+Note: Do not select a wireless device, it will not work.
 
 The DHCP-Forwarder service needs to be restarted:
 
-1. After a configuration change
-2. When the server goes to sleep and resumes
+1. after a configuration change
+2. when the server goes to sleep and resumes.
 
 
 The installer
@@ -74,7 +74,7 @@ You will need:
 * [Git](https://git-scm.com/download/win)
 * [Go](https://golang.org/dl/)
 
-You will need to generate WinPCAP x64 dependencies yourself ([as of November 2016](https://stackoverflow.com/questions/38047858/compile-gopacket-on-windows-64bit). Please advise if it's not the case anymore).
+You will need to generate WinPCAP x64 dependencies yourself ([as of November 2016](https://stackoverflow.com/questions/38047858/compile-gopacket-on-windows-64bit). Please advise if it's not needed anymore).
 
 
 To generate the installer, you will also need [NSIS](https://sourceforge.net/projects/nsis/files/)
@@ -88,17 +88,17 @@ git clone https://github.com/inverse-inc/packetfence-dhcp-forwarder.git
 ```
 dhcp-forwarder-config-generator:
 
-* Generates DHCP-Forwarder.toml configuration based on user selected NIC from "getmac /fo csv /v"  output and fix the UID name. It is currently impossible to use gopacket to list human readable interface names so the user can choose from them and map it to its UUID.
+* generates DHCP-Forwarder.toml configuration based on user selected NIC from "getmac /fo csv /v"  output and fix the UID name. It is currently impossible to use gopacket to list human readable interface names so the user can choose from them and map it to its UUID.
 
 
 dhcp-forwarder:
 
-* Applies DHCP-Forwarder.toml configuration from the working directory sends captured UDP packets to configured destination host and port.
+* applies DHCP-Forwarder.toml configuration from the working directory sends captured UDP packets to configured destination host and port.
 
 
 dhcp-forwarder-installer:
 
-* The NSI script to generate the installer is "DHCP Forwarder.nsi"
+* the NSI script to generate the installer is "DHCP Forwarder.nsi"
 
 Files are installed under "C:\Program Files (x86)\DHCP Forwarder".
 
@@ -155,9 +155,9 @@ The following files should be present under current working directory:
 
 You can now invoke the installer creator through "C:\Program Files (x86)\NSIS\NSIS.exe"
  
- * Click "Compile NSI scripts"
- * Select compression level.
- * Select "c:\go\src\packetfence-dhcp-forwarder\dhcp-forwarder-installer\DHCP Forwarder.nsi" and compile.
+ * click "Compile NSI scripts"
+ * select compression level
+ * select "c:\go\src\packetfence-dhcp-forwarder\dhcp-forwarder-installer\DHCP Forwarder.nsi" and compile.
 
 
 You now have an installer under "c:\go\src\packetfence-dhcp-forwarder\dhcp-forwarder-installer\DHCP Forwarder installer.exe"
@@ -184,9 +184,9 @@ eventvwr.msc
 
 NSSM
 ----
-* The nssm service installation might fail if the configured interface is not in a connected state. 
-* The nssm binary can be launched from the command line from the program files directory.
-* nssm configured service name is DHCP-Forwarder.
+* The nssm service installation might fail if the configured interface is not in a connected state
+* The nssm binary can be launched from the command line from the program files directory
+* nssm configured service name is DHCP-Forwarder
 
 The following commands should help:
 
@@ -198,8 +198,8 @@ The service is executed with default System account. Edit accordingly.
 dhcp-forwarder
 --------------
 
-* If nssm shows a status different then running, you can launch manually dhcp-forwarder from its working directory from the command line. 
-That application should give you more details about the reasons the service is failing. 
+* if nssm shows a status different then running, you can launch manually dhcp-forwarder from its working directory from the command line. 
+That application should give you more details about the reasons the service is failing
 
 Note: The configured interface needs to be connected. If you need to change the interface or destination information, you should execute dhcp-forwarder-config-generator.exe from a command line in its program files folder to regenerate a clean configuration.
 
