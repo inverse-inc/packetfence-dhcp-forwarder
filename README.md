@@ -42,10 +42,13 @@ Does:
 4. Store default filter value, which selects DHCPACK and DHCPREQUESTS in a DHCP mask.
 5. Store those values in DHCP-Forwarder.toml in the working directory.
 
+Note: Do not select a Wireless device, it will not work.
+
 The DHCP-Forwarder service needs to be restarted:
 
 1. After a configuration change
 2. When the server goes to sleep and resumes
+
 
 The installer
 -------------
@@ -85,22 +88,20 @@ git clone https://github.com/inverse-inc/packetfence-dhcp-forwarder.git
 ```
 dhcp-forwarder-config-generator:
 
-* Generates DHCP-Forwarder.toml configuration based on user selection of modified "getmac /fo csv /v" output, since it is currently impossible to use gopacket to list human readable interface name.
-* Asks for destination ip and port.
-* Generated a preconfigured BPF for DHCPREQUESTS(3) and DHCPACK(5). That filter can be modified directly in the configuration file.
-
-Notes: Wireless device selection will not work.
+* Generates DHCP-Forwarder.toml configuration based on user selected NIC from "getmac /fo csv /v"  output and fix the UID name. It is currently impossible to use gopacket to list human readable interface names so the user can choose from them and map it to its UUID.
 
 
 dhcp-forwarder:
-Takes DHCP-Forwarder.toml from the working directory and sends captured UDP packet to configured destination host and port.
+
+* Applies DHCP-Forwarder.toml configuration from the working directory sends captured UDP packets to configured destination host and port.
 
 
 dhcp-forwarder-installer:
-The installer will launch WinPCAP Installer, install all required files (dhcp-forwarder-config-generator.exe, dhcp-forwarder.exe, nssm to manage services) and launch the ConfigGenerator and install dhcp-forwarder.exe as a service with nssm.
-The NSI script is DHCP Forwarder.nsi
+
+* The NSI script to generate the installer is "DHCP Forwarder.nsi"
 
 Files are installed under "C:\Program Files (x86)\DHCP Forwarder".
+
 
 Compilation
 -----------
@@ -119,7 +120,7 @@ go get
 go build
 ```
 
-You now have the binaries required to build the installer.
+You now have the compiled binaries required to generate the installer.
 
 
 Create the installer
@@ -152,16 +153,19 @@ The following files should be present under current working directory:
  * dhcp-forwarder-installer/nssm.exe
 
 
-You can invoke the installer creator through "C:\Program Files (x86)\NSIS\NSIS.exe"
- * Click "Compile NSI scripts", select "c:\go\src\packetfence-dhcp-forwarder\dhcp-forwarder-installer\DHCP Forwarder.nsi" and compile.
+You can now invoke the installer creator through "C:\Program Files (x86)\NSIS\NSIS.exe"
+ 
+ * Click "Compile NSI scripts"
  * Select compression level.
+ * Select "c:\go\src\packetfence-dhcp-forwarder\dhcp-forwarder-installer\DHCP Forwarder.nsi" and compile.
+
 
 You now have an installer under "c:\go\src\packetfence-dhcp-forwarder\dhcp-forwarder-installer\DHCP Forwarder installer.exe"
 
 
 Troubleshoot
 ============
-Eventlog
+Eventlogs
 --------
 The Event logs should help a lot in finding the cause the service not starting. Have you changed your networking card since Installation? Disconnected a cable disconnected? Had the server sleep and resumed from suspend?
 
