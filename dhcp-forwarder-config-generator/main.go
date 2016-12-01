@@ -14,29 +14,21 @@ import (
 	"github.com/BurntSushi/toml"
 )
 
-type TomlConfig struct {
+type Configuration struct {
 	Host   string
 	Port   int
 	Device string
 	Filter string
 }
 
-var Config TomlConfig
+var Config Configuration
 
 func main() {
 	fmt.Printf("!!! You can run this program anytime from %s !!!\n\n", os.Args[0])
-	
 	//Set values to defaults. 0x3: DHCPREQUEST. 0x5: DHCPACK. Those are the only ones required by PacketFence to track and fingerprint devices from DHCP.
 	Config.Filter = "udp and port 68 and ((udp[250:1] = 0x3) or (udp[250:1] = 0x5))"
 	SelectInterface()
 	SelectRemoteHostAndPort()
-	
-	//fmt.Printf("Actual configuration:\n")
-	//fmt.Printf("Config.filter\t%v\n", Config.Filter)
-	//fmt.Printf("Config.host\t%v\n", Config.Host)
-	//fmt.Printf("Config.port\t%v\n", Config.Port)
-	//fmt.Printf("Config.device\t%v\n", Config.Device)
-		
 	SaveConfig("DHCP-Forwarder.toml")
 }
 
@@ -45,7 +37,8 @@ func SelectInterface() {
 		cmdOut []byte
 		err    error
 	)
-
+	//Unfortunately, gopacket device names were the same as their descriptions, so it was not possible to obtain
+	//NIC's UUID directly and save it. getmac is available since WinXP, and provides the UID.
 	cmdName := "getmac"
 	cmdArgs := []string{"/fo", "csv", "/v"}
 
@@ -82,6 +75,8 @@ func SelectInterface() {
 			if _, err := fmt.Scan(&InterfaceIndex); err != nil {
 				fmt.Printf("Error. %v\n", err)
 			} else if 0 <= InterfaceIndex && InterfaceIndex < len(rawCSVdata) {
+				//NIC's UID returned needs to be fixated by replacing Tcpip in it's name by NPF
+				//NPF is WinPCAP device's driver name equivalent to the system's device.
 				Config.Device = strings.Replace(rawCSVdata[InterfaceIndex][3], "Tcpip", "NPF", 1)
 				break
 			} else {
