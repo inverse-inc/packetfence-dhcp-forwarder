@@ -203,7 +203,6 @@ That application should give you more details about the reasons the service is f
 
 Note: The configured interface needs to be connected. If you need to change the interface or destination information, you should execute dhcp-forwarder-config-generator.exe from a command line in its program files folder to regenerate a clean configuration.
 
-
 History:
 ===========
 * DHCP Forwarder is based on go-listener (https://github.com/louismunro/go-listener) which itself is based on the UDP reflector concept.
