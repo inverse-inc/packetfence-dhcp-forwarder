@@ -207,3 +207,6 @@ History:
 ===========
 * DHCP Forwarder is based on go-listener (https://github.com/louismunro/go-listener) which itself is based on the UDP reflector concept.
 
+Installer:
+* 1.0: Initial release
+* 1.1: Default "Filter" UDP port changed from 68 to 67, to make sure relays are also catched. 

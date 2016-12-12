@@ -2,7 +2,7 @@
 
 ; HM NIS Edit Wizard helper defines
 !define PRODUCT_NAME "DHCP Forwarder"
-!define PRODUCT_VERSION "1.0"
+!define PRODUCT_VERSION "1.1"
 !define PRODUCT_PUBLISHER "Inverse Inc."
 !define PRODUCT_WEB_SITE "http://inverse.ca"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
