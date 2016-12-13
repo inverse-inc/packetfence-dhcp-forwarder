@@ -26,7 +26,7 @@ var Config Configuration
 func main() {
 	fmt.Printf("!!! You can run this program anytime from %s !!!\n\n", os.Args[0])
 	//Set values to defaults. 0x3: DHCPREQUEST. 0x5: DHCPACK. Those are the only ones required by PacketFence to track and fingerprint devices from DHCP.
-	Config.Filter = "udp and port 68 and ((udp[250:1] = 0x3) or (udp[250:1] = 0x5))"
+	Config.Filter = "udp and port 67 and ((udp[250:1] = 0x3) or (udp[250:1] = 0x5))"
 	SelectInterface()
 	SelectRemoteHostAndPort()
 	SaveConfig("DHCP-Forwarder.toml")
