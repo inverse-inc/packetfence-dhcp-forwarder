@@ -50,38 +50,38 @@ func SelectInterface() {
 
 	reader := csv.NewReader(strings.NewReader(Output))
 
-	reader.FieldsPerRecord = 4 // Expected format is "Connection Name","Network Adapter","Physical Address","Transport Name"
-	CSVHeader, err := reader.Read()
+	reader.FieldsPerRecord = 4 // Expected format is like the following: "Connection Name","Network Adapter","Physical Address","Transport Name"
+	
+	//We discard the header line. We expect it to not change and won't compare against all langages.
+	_, err = reader.Read()
+	//if CSVHeader[0] == "Connection Name" &&
+	//	CSVHeader[1] == "Network Adapter" &&
+	//	CSVHeader[2] == "Physical Address" &&
+	//	CSVHeader[3] == "Transport Name" {
+	
+	rawCSVdata, err := reader.ReadAll()	
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
-	//If the ouput of getmac is in the expected format
-	if CSVHeader[0] == "Connection Name" &&
-		CSVHeader[1] == "Network Adapter" &&
-		CSVHeader[2] == "Physical Address" &&
-		CSVHeader[3] == "Transport Name" {
-		rawCSVdata, err := reader.ReadAll()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
+	var InterfaceIndex int
+	fmt.Printf("Index\t:\t Interface name\t\n")
+	for row, each := range rawCSVdata {
+		fmt.Printf("%d\t:\t %s\n", row, each[1])
+	}
 
-		var InterfaceIndex int
-		fmt.Printf("Index\t:\t Interface name\t\n")
-		for row, each := range rawCSVdata {
-			fmt.Printf("%d\t:\t %s\n", row, each[0])
-		}
-
-		for {
-			fmt.Printf("\nPlease select the index number corresponding to the desired interface name:")
-			if _, err := fmt.Scan(&InterfaceIndex); err != nil {
-				fmt.Printf("Error. %v\n", err)
-			} else if 0 <= InterfaceIndex && InterfaceIndex < len(rawCSVdata) {
-				//NIC's UID returned needs to be fixated by replacing Tcpip in it's name by NPF
-				//NPF is WinPCAP device's driver name equivalent to the system's device.
-				Config.Device = strings.Replace(rawCSVdata[InterfaceIndex][3], "Tcpip", "NPF", 1)
-				break
-			} else {
-				fmt.Printf("!!! Choice out of possible range. Choose between 0 and %v !!!\n", len(rawCSVdata)-1)
-			}
+	for {
+		fmt.Printf("\nPlease select the index number corresponding to the desired interface name:")
+		if _, err := fmt.Scan(&InterfaceIndex); err != nil {
+			fmt.Printf("Error. %v\n", err)
+		} else if 0 <= InterfaceIndex && InterfaceIndex < len(rawCSVdata) {
+			//NIC's UID returned needs to be fixated by replacing Tcpip in it's name by NPF
+			//NPF is WinPCAP device's driver name equivalent to the system's device.
+			Config.Device = strings.Replace(rawCSVdata[InterfaceIndex][3], "Tcpip", "NPF", 1)
+			break
+		} else {
+			fmt.Printf("!!! Choice out of possible range. Choose between 0 and %v !!!\n", len(rawCSVdata)-1)
 		}
 	}
 }
