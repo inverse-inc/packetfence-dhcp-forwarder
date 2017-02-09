@@ -1,7 +1,7 @@
 DHCP-Forwarder
 ==============
 
-This tool captures and forwards a subset of DHCP traffic (specifically DHCPREQUEST and DHCPACK) from a Windows DHCP server to a destination IP and port.
+This tool captures and forwards a subset of DHCP traffic (specifically DHCPREQUEST and DHCPACK) from a Windows x64 DHCP server to a destination IP and port.
 
 Alternatively, IP Helpers can be configured on each switch of an infrastructure to forward broadcast only packets. Those contain all types of DHCP packets but less to none DHCPACK which confirms lease ownership.
 
@@ -70,7 +70,7 @@ Native Compilation under x64
 You will need:
 
 * [TDM-GCC](https://sourceforge.net/projects/tdm-gcc/files/latest/download)
-* [WinPcap Development edition](https://sourceforge.net/projects/tdm-gcc/files/latest/download)
+* [WinPcap Development edition](http://www.winpcap.org/install/bin/WpdPack_4_1_2.zip)
 * [Git](https://git-scm.com/download/win)
 * [Go](https://golang.org/dl/)
 
@@ -82,10 +82,11 @@ To generate the installer, you will also need [NSIS](https://sourceforge.net/pro
 
 Get the sources
 ---------------
-In a shell, under c:\go\src or wherever you installed GO, download the sources through installed git:
+In a shell, create a "src" directory (that is a GOLANG requirement) that you want to be the root of your GO projects, (eg: c:\Users\Test\go\src\ ) and download the sources through previously installed git:
 ```
 git clone https://github.com/inverse-inc/packetfence-dhcp-forwarder.git
 ```
+
 dhcp-forwarder-config-generator:
 
 * generates DHCP-Forwarder.toml configuration based on user selected NIC from "getmac /fo csv /v"  output and fix the UID name. It is currently impossible to use gopacket to list human readable interface names so the user can choose from them and map it to its UUID.
@@ -109,8 +110,8 @@ Once you have the sources and the tools for native compilations under c:\go\src\
 
 In a terminal, do the following:
 ```
-set GOPATH=c:\go
-cd c:\go\src\packetfence-dhcp-forwarder
+set GOPATH=c:\Users\Test\go\
+cd c:\Users\Test\go\src\packetfence-dhcp-forwarder
 cd dhcp-forwarder
 go get
 go build
@@ -130,12 +131,12 @@ To create the installer, you need to download and install the following:
 
 Place yourself in the root of the git downloaded directory:
 ```
-cd c:\go\src\packetfence-dhcp-forwarder
+cd c:\Users\Test\go\src\packetfence-dhcp-forwarder
 ```
 Copy compiled files to the installer diretory:
 ```
-cp dhcp-forwarder/dhcp-forwarder.exe dhcp-forwarder-installer
-cp dhcp-forwarder-config-generator/dhcp-forwarder-config-generator.exe dhcp-forwarder-installer
+copy dhcp-forwarder/dhcp-forwarder.exe dhcp-forwarder-installer
+copy dhcp-forwarder-config-generator/dhcp-forwarder-config-generator.exe dhcp-forwarder-installer
 ```
 
 Place yourself in the installer directory:
@@ -165,9 +166,11 @@ You now have an installer under "c:\go\src\packetfence-dhcp-forwarder\dhcp-forwa
 
 Troubleshoot
 ============
+We officially support only x64 Windows servers.
+
 Eventlogs
 --------
-The Event logs should help a lot in finding the cause the service not starting. Have you changed your networking card since installation? Disconnected a cable disconnected? Had the server sleep and resumed from suspend?
+The Event logs should help a lot in finding the cause of why the service not starting. Have you changed your networking card since installation? Disconnected a cable disconnected? Had the server sleep and resumed from suspend?
 
 Alternatively, you can stop the service from Windows Service Manager and debug from the command line. Launch an adminstrative command line and place yourself under "C:\Program Files (x86)\DHCP Forwarder"
 
@@ -209,4 +212,5 @@ History:
 
 Installer:
 * 1.0: Initial release
-* 1.1: Default "Filter" UDP port changed from 68 to 67, to make sure relays are also catched. 
+* 1.1: Default "Filter" UDP port changed from 68 to 67, to make sure relays are also catched.
+* 1.2: Configurator changed to not depend on english literals at installation 
