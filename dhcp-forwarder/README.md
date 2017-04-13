@@ -1,3 +1,3 @@
 dhcp-forwarder:
-===========
-* Takes DHCP-Forwarder.toml from the working directory and sends captured udp packet to configured destination host and port.
+===============
+Sends captured UDP packets from a listening device to a destination host and port. Takes it's configuration from the DHCP-Forwarder.toml file.
