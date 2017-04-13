@@ -28,7 +28,7 @@ Theses instructions assumes you already have a working Golang environment. If it
 ```
 go get ./...
 ```
- * Withing the 'dhcp-forwarder' working directory (./dhcp-forwarder/), build the binary using :
+ * Within the 'dhcp-forwarder' working directory (./dhcp-forwarder/), build the binary using :
 ```
 go build
 ```
