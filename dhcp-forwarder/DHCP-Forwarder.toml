@@ -1,4 +1,4 @@
-Host = "1.1.1.1"
-Port = 767
-Device = "\\Device\\NPF_{F8D005F1-E190-4BE7-BC6C-10D08D20A1C0}"
+DestinationHost = "1.1.1.1"
+DestinationPort = 767
+ListeningDevice = "\\Device\\NPF_{F8D005F1-E190-4BE7-BC6C-10D08D20A1C0}"
 Filter = "udp and port 68 and ((udp[250:1] = 0x3) or (udp[250:1] = 0x5))"

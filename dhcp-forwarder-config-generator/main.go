@@ -15,9 +15,9 @@ import (
 )
 
 type Configuration struct {
-	Host   string
-	Port   int
-	Device string
+	DestinationHost   string
+	DestinationPort   int
+	ListeningDevice string
 	Filter string
 }
 
@@ -78,7 +78,7 @@ func SelectInterface() {
 		} else if 0 <= InterfaceIndex && InterfaceIndex < len(rawCSVdata) {
 			//NIC's UID returned needs to be fixated by replacing Tcpip in it's name by NPF
 			//NPF is WinPCAP device's driver name equivalent to the system's device.
-			Config.Device = strings.Replace(rawCSVdata[InterfaceIndex][3], "Tcpip", "NPF", 1)
+			Config.ListeningDevice = strings.Replace(rawCSVdata[InterfaceIndex][3], "Tcpip", "NPF", 1)
 			break
 		} else {
 			fmt.Printf("!!! Choice out of possible range. Choose between 0 and %v !!!\n", len(rawCSVdata)-1)
@@ -99,7 +99,7 @@ func SelectRemoteHostAndPort() {
 		if TestInput.To4() == nil {
 			fmt.Printf("!!! %v is not a valid hostv4 address !!!\n", tmp)
 		} else {
-			Config.Host = tmp
+			Config.DestinationHost = tmp
 			break
 		}
 	}
@@ -109,7 +109,7 @@ func SelectRemoteHostAndPort() {
 		if _, err := fmt.Scan(&UDPPort); err != nil {
 			fmt.Printf("Error. %v\n\n", err)
 		} else if 0 <= UDPPort && UDPPort <= 65535 {
-			Config.Port = UDPPort
+			Config.DestinationPort = UDPPort
 			break
 		} else {
 			fmt.Printf("!!! UDP port out of possible range. Choose between 0 and 65535 !!!\n")

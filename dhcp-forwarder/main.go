@@ -41,9 +41,9 @@ func main() {
 	err = viper.ReadInConfig()
 	checkError(err)
 
-	host = viper.GetString("Host")
-	port = viper.GetString("Port")
-	dev = viper.GetString("Device")
+	host = viper.GetString("DestinationHost")
+	port = viper.GetString("DestinationPort")
+	dev = viper.GetString("ListeningDevice")
 	filter = viper.GetString("Filter")
 	exclude = " and (not (dst port " + port + " and dst host " + host + " ))"
 
