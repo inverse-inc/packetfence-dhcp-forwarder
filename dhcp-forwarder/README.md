@@ -14,6 +14,9 @@ Linux based system
 ------------------
 The 'dhcp-forwarder' can work on a Linux based system as well. Unfortunately, there is no step-by-step installer, therefore manual installation is required.
 
+### Dependencies
+ * Requires 'libpcap' as well as 'libpcap-devel'
+
 ### Golang environment
 
 Developed in Golang, 'dhcp-forwarder' requires architecture based compilation to get a working binary.
