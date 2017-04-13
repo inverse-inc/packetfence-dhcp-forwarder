@@ -214,3 +214,4 @@ Installer:
 * 1.0: Initial release
 * 1.1: Default "Filter" UDP port changed from 68 to 67, to make sure relays are also catched.
 * 1.2: Configurator changed to not depend on english literals at installation 
+* 1.3: New installator containing unified Windows and Linux shared codebase for eventlogging(google/logger)
