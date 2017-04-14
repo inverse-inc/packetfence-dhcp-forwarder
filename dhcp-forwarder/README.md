@@ -35,4 +35,4 @@ go get ./...
 ```
 go build
 ```
- * Outputed 'dhcp-forwarder' is the newly built binary file
+ * Newly built binary file would be named 'dhcp-forwarder'
