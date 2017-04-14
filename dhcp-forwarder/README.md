@@ -36,3 +36,10 @@ go get ./...
 go build
 ```
  * Newly built binary file would be named 'dhcp-forwarder'
+
+### Configuration
+
+ * DestinationHost: To which IP address the trafic is being forwarded (Usually PacketFence management IP address)
+ * DestinationPort: To which UDP port of the destination host the trafic is being forwarded (Usually 767)
+ * ListeningDevice: Trafic from which network interface should be forwarded (Something like eth0, em1 or any network interface name)
+ * Filter: Filter applied to libpcap to forward only certain type of trafic
