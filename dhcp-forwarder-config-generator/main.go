@@ -3,25 +3,32 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"encoding/csv"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net"
 	"os"
-	"os/exec"
+	"regexp"
 	"strings"
 
 	"github.com/BurntSushi/toml"
+	"github.com/google/gopacket/pcap"
+	"golang.org/x/sys/windows/registry"
 )
 
 type Configuration struct {
-	DestinationHost   string
-	DestinationPort   int
+	DestinationHost string
+	DestinationPort int
 	ListeningDevice string
-	Filter string
+	Filter          string
 }
 
 var Config Configuration
+
+type NetworkInterface struct {
+	Name        string
+	Description string
+}
 
 func main() {
 	fmt.Printf("!!! You can run this program anytime from %s !!!\n\n", os.Args[0])
@@ -34,54 +41,51 @@ func main() {
 
 func SelectInterface() {
 	var (
-		cmdOut []byte
-		err    error
+		err error
 	)
-	//Unfortunately, gopacket device names were the same as their descriptions, so it was not possible to obtain
-	//NIC's UUID directly and save it. getmac is available since WinXP, and provides the UID.
-	cmdName := "getmac"
-	cmdArgs := []string{"/fo", "csv", "/v"}
 
-	if cmdOut, err = exec.Command(cmdName, cmdArgs...).Output(); err != nil {
-		fmt.Fprintln(os.Stderr, "There was an error running getmac /fo csv /v", err)
-		os.Exit(1)
-	}
-	Output := string(cmdOut)
-
-	reader := csv.NewReader(strings.NewReader(Output))
-
-	reader.FieldsPerRecord = 4 // Expected format is like the following: "Connection Name","Network Adapter","Physical Address","Transport Name"
-	
-	//We discard the header line. We expect it to not change and won't compare against all langages.
-	_, err = reader.Read()
-	//if CSVHeader[0] == "Connection Name" &&
-	//	CSVHeader[1] == "Network Adapter" &&
-	//	CSVHeader[2] == "Physical Address" &&
-	//	CSVHeader[3] == "Transport Name" {
-	
-	rawCSVdata, err := reader.ReadAll()	
+	devices, err := pcap.FindAllDevs()
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
+	}
+
+	interfacePattern := regexp.MustCompile("\\{(.*)\\}")
+	NetworkInterfaces := []NetworkInterface{}
+
+	for _, device := range devices {
+		NetInterface := &NetworkInterface{}
+		NetInterface.Name = device.Name
+		match := interfacePattern.FindStringSubmatch(strings.ToLower(device.Name))
+		k, err := registry.OpenKey(registry.LOCAL_MACHINE, `SYSTEM\Setup\Upgrade\NetworkDriverBackup\Control\NetworkSetup2\Interfaces\`+match[0]+`\Kernel`, registry.QUERY_VALUE)
+		if err != nil {
+			log.Println(err)
+		}
+		defer k.Close()
+		s, _, err := k.GetStringValue("IfAlias")
+		if err != nil {
+			continue
+		}
+		NetInterface.Description = s
+		NetworkInterfaces = append(NetworkInterfaces, *NetInterface)
 	}
 
 	var InterfaceIndex int
 	fmt.Printf("Index\t:\t Interface name\t\n")
-	for row, each := range rawCSVdata {
-		fmt.Printf("%d\t:\t %s\n", row, each[1])
+	for row, each := range NetworkInterfaces {
+		fmt.Printf("%d\t:\t %s\n", row, each.Description)
 	}
 
 	for {
 		fmt.Printf("\nPlease select the index number corresponding to the desired interface name:")
 		if _, err := fmt.Scan(&InterfaceIndex); err != nil {
 			fmt.Printf("Error. %v\n", err)
-		} else if 0 <= InterfaceIndex && InterfaceIndex < len(rawCSVdata) {
+		} else if 0 <= InterfaceIndex && InterfaceIndex < len(NetworkInterfaces) {
 			//NIC's UID returned needs to be fixated by replacing Tcpip in it's name by NPF
 			//NPF is WinPCAP device's driver name equivalent to the system's device.
-			Config.ListeningDevice = strings.Replace(rawCSVdata[InterfaceIndex][3], "Tcpip", "NPF", 1)
+			Config.ListeningDevice = NetworkInterfaces[InterfaceIndex].Name
 			break
 		} else {
-			fmt.Printf("!!! Choice out of possible range. Choose between 0 and %v !!!\n", len(rawCSVdata)-1)
+			fmt.Printf("!!! Choice out of possible range. Choose between 0 and %v !!!\n", len(NetworkInterfaces)-1)
 		}
 	}
 }
