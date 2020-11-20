@@ -56,12 +56,12 @@ func SelectInterface() {
 		NetInterface := &NetworkInterface{}
 		NetInterface.Name = device.Name
 		match := interfacePattern.FindStringSubmatch(strings.ToLower(device.Name))
-		k, err := registry.OpenKey(registry.LOCAL_MACHINE, `SYSTEM\Setup\Upgrade\NetworkDriverBackup\Control\NetworkSetup2\Interfaces\`+match[0]+`\Kernel`, registry.QUERY_VALUE)
+		k, err := registry.OpenKey(registry.LOCAL_MACHINE, `SYSTEM\ControlSet001\Control\Network\{4D36E972-E325-11CE-BFC1-08002BE10318}\`+match[0]+`\Connection`, registry.QUERY_VALUE)
 		if err != nil {
 			log.Println(err)
 		}
 		defer k.Close()
-		s, _, err := k.GetStringValue("IfAlias")
+		s, _, err := k.GetStringValue("Name")
 		if err != nil {
 			continue
 		}
