@@ -1,9 +1,11 @@
 package main
 
 import (
+	"errors"
 	"net"
 
 	"github.com/google/gopacket"
+	"github.com/google/gopacket/pcap"
 )
 
 type ForwardHandler interface {
@@ -12,7 +14,7 @@ type ForwardHandler interface {
 
 type Forwarder struct {
 	Handler ForwardHandler
-	BPF     string
+	BPF     *pcap.BPF
 }
 
 type SimpleUDPHandler struct {
@@ -34,21 +36,63 @@ func (h *SimpleUDPHandler) Forward(p gopacket.Packet) error {
 	return nil
 }
 
-type Config struct {
-}
+func NewSimpleUDPHandler(c *ForwarderConfig) (ForwardHandler, error) {
+	udpAddr, err := net.ResolveUDPAddr("udp4", c.Host+":"+c.Port)
+	if err != nil {
+		return nil, err
+	}
 
-func NewSimpleUDPHandler(c Config) (ForwardHandler, error) {
-	return &SimpleUDPHandler{}, nil
+	conn, err = net.DialUDP("udp", nil, udpAddr)
+	if err != nil {
+		return nil, err
+	}
+
+	return &SimpleUDPHandler{conn: conn}, nil
 }
 
 type DNSHandler struct {
 	conn *net.UDPConn
 }
 
-func NewDNSHandler(c Config) (ForwardHandler, error) {
-	return &DNSHandler{}, nil
+func NewDNSHandler(c *ForwarderConfig) (ForwardHandler, error) {
+	udpAddr, err := net.ResolveUDPAddr("udp4", c.Host+":"+c.Port)
+	if err != nil {
+		return nil, err
+	}
+
+	conn, err = net.DialUDP("udp", nil, udpAddr)
+	if err != nil {
+		return nil, err
+	}
+
+	return &DNSHandler{conn: conn}, nil
 }
 
 func (h *DNSHandler) Forward(p gopacket.Packet) error {
 	return nil
+}
+
+type ForwardHandlerBuilder func(c *ForwarderConfig) (ForwardHandler, error)
+
+var forwardHandlerBuilders = map[string]ForwardHandlerBuilder{
+	"dns":  NewDNSHandler,
+	"dhcp": NewSimpleUDPHandler,
+}
+
+func MakeForwarder(pcap *pcap.Handle, c *ForwarderConfig) (*Forwarder, error) {
+	if f, found := forwardHandlerBuilders[c.Type]; found {
+		h, err := f(c)
+		if err != nil {
+			return nil, err
+		}
+
+		bpf, err := pcap.NewBPF(c.Filter)
+		if err != nil {
+			return nil, err
+		}
+
+		return &Forwarder{Handler: h, BPF: bpf}, nil
+	}
+
+	return nil, errors.New("Not found")
 }
