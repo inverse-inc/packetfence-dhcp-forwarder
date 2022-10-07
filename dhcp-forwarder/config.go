@@ -132,11 +132,16 @@ func GetConfigFromFile(name string) (*Config, error) {
 
 	config.Interface = v.GetString("ListeningDevice")
 	filters := []string{}
+	excludes := []string{}
 	for _, f := range config.Forwarders {
 		filters = append(filters, "("+f.Filter+")")
+		excludes = append(excludes, "(not (dst port "+f.Port+" and dst host "+f.Host+" ))")
 	}
 
-	config.Filter = strings.Join(filters, " and ")
+	config.Filter = "(" + strings.Join(filters, " and ") + ")"
+	if len(excludes) > 0 {
+		config.Filter += " and (" + strings.Join(excludes, " and ") + ")"
+	}
 
 	return config, nil
 }
