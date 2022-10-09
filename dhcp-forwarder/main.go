@@ -2,22 +2,11 @@ package main
 
 import (
 	"io/ioutil"
-	"net"
 	"os"
 
 	"github.com/google/gopacket"
 	_ "github.com/google/gopacket/layers"
 	"github.com/google/logger"
-)
-
-var (
-	filter  string
-	exclude string
-	conn    *net.UDPConn
-	dev     string
-	snaplen int32 = 1600
-	host    string
-	port    string
 )
 
 func main() {

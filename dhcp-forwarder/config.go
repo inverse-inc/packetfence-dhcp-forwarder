@@ -64,13 +64,13 @@ func getDHCPConfig(v *viper.Viper, c *Config) error {
 	}
 
 	config.Host = host
-	port = v.GetString("DestinationPort")
+	port := v.GetString("DestinationPort")
 	if port == "" {
 		return errors.New("No destination port for dhcp forwarder")
 	}
 
 	config.Port = port
-	filter = v.GetString("Filter")
+	filter := v.GetString("Filter")
 	if filter == "" {
 		return errors.New("No filter for dhcp forwarder")
 	}
@@ -92,13 +92,13 @@ func getDNSConfig(v *viper.Viper, c *Config) error {
 	}
 
 	config.Host = host
-	port = v.GetString("DNSDestinationPort")
+	port := v.GetString("DNSDestinationPort")
 	if port == "" {
 		return errors.New("No destination port for dhcp forwarder")
 	}
 
 	config.Port = port
-	filter = v.GetString("DNSFilter")
+	filter := v.GetString("DNSFilter")
 	if filter == "" {
 		return errors.New("No filter for dhcp forwarder")
 	}
