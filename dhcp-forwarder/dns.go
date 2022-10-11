@@ -7,6 +7,8 @@ import (
 	"github.com/google/gopacket/layers"
 )
 
+const PFForwardSrcDst layers.DNSOptionCode = 65245
+
 type DNSHandler struct {
 	conn *net.UDPConn
 	addr *net.UDPAddr
@@ -26,6 +28,41 @@ func NewDNSHandler(c *ForwarderConfig) (ForwardHandler, error) {
 	return &DNSHandler{conn: conn, addr: udpAddr}, nil
 }
 
+func addSrcDstRR(dns *layers.DNS, code layers.DNSOptionCode, src, dst net.IP) {
+	if dns == nil {
+		return
+	}
+
+	var rr *layers.DNSResourceRecord = nil
+
+	// find the last resource record
+	for i := len(dns.Additionals) - 1; i >= 0; i++ {
+		if dns.Additionals[i].Type == layers.DNSTypeOPT {
+			rr = &dns.Additionals[i]
+			break
+		}
+	}
+
+	if rr == nil {
+		dns.Additionals = append(
+			dns.Additionals,
+			layers.DNSResourceRecord{
+				Type: layers.DNSTypeOPT,
+			},
+		)
+
+		rr = &dns.Additionals[len(dns.Additionals)-1]
+	}
+
+	rr.OPT = append(
+		rr.OPT,
+		layers.DNSOPT{
+			Code: code,
+			Data: append(src, dst...),
+		},
+	)
+}
+
 func (h *DNSHandler) Forward(p gopacket.Packet) error {
 	var eth layers.Ethernet
 	var ipv4 layers.IPv4
@@ -38,6 +75,7 @@ func (h *DNSHandler) Forward(p gopacket.Packet) error {
 		return err
 	}
 
+	addSrcDstRR(&dns, PFForwardSrcDst, ipv4.SrcIP, ipv4.DstIP)
 	buf := gopacket.NewSerializeBuffer()
 	opts := gopacket.SerializeOptions{FixLengths: true}
 	if err := dns.SerializeTo(buf, opts); err != nil {
