@@ -8,12 +8,13 @@ import (
 
 type SimpleUDPHandler struct {
 	conn *net.UDPConn
+	addr *net.UDPAddr
 }
 
 func (h *SimpleUDPHandler) Forward(p gopacket.Packet) error {
 	udpLayer := p.TransportLayer()
 	if udpLayer != nil {
-		h.conn.Write(udpLayer.LayerPayload())
+		h.conn.WriteTo(udpLayer.LayerPayload(), h.addr)
 		// We don't check for error here.
 		// The endpoint might not be listening yet.
 	}
@@ -31,10 +32,10 @@ func NewSimpleUDPHandler(c *ForwarderConfig) (ForwardHandler, error) {
 		return nil, err
 	}
 
-	conn, err := net.DialUDP("udp", nil, udpAddr)
+	conn, err := net.ListenUDP("udp", &net.UDPAddr{IP: net.IPv4zero, Port: 0})
 	if err != nil {
 		return nil, err
 	}
 
-	return &SimpleUDPHandler{conn: conn}, nil
+	return &SimpleUDPHandler{conn: conn, addr: udpAddr}, nil
 }
