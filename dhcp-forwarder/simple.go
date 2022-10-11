@@ -14,7 +14,7 @@ type SimpleUDPHandler struct {
 func (h *SimpleUDPHandler) Forward(p gopacket.Packet) error {
 	udpLayer := p.TransportLayer()
 	if udpLayer != nil {
-		h.conn.WriteTo(udpLayer.LayerPayload(), h.addr)
+		h.conn.WriteToUDP(udpLayer.LayerPayload(), h.addr)
 		// We don't check for error here.
 		// The endpoint might not be listening yet.
 	}

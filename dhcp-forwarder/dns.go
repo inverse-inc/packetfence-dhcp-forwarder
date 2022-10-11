@@ -44,6 +44,6 @@ func (h *DNSHandler) Forward(p gopacket.Packet) error {
 		return err
 	}
 
-	h.conn.WriteTo(buf.Bytes(), h.addr)
+	h.conn.WriteToUDP(buf.Bytes(), h.addr)
 	return nil
 }
