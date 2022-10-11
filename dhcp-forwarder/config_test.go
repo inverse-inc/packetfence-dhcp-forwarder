@@ -17,7 +17,7 @@ func TestConfigLoad(t *testing.T) {
 		&Config{
 			Interface: "eth0",
 			SnapLen:   1600,
-			Filter:    "((udp and port 68 and ((udp[250:1] = 0x3) or (udp[250:1] = 0x5))) and (udp and port 53)) and ((not (dst port 767 and dst host 1.1.1.1 )) and (not (dst port 753 and dst host 1.1.1.1 )))",
+			Filter:    "((udp and port 68 and ((udp[250:1] = 0x3) or (udp[250:1] = 0x5))) or (udp and port 53)) and ((not (dst port 767 and dst host 1.1.1.1 )) and (not (dst port 753 and dst host 1.1.1.1 )))",
 			Forwarders: []ForwarderConfig{
 				{
 					Type:   "dhcp",

@@ -138,7 +138,7 @@ func GetConfigFromFile(name string) (*Config, error) {
 		excludes = append(excludes, "(not (dst port "+f.Port+" and dst host "+f.Host+" ))")
 	}
 
-	config.Filter = "(" + strings.Join(filters, " and ") + ")"
+	config.Filter = "(" + strings.Join(filters, " or ") + ")"
 	if len(excludes) > 0 {
 		config.Filter += " and (" + strings.Join(excludes, " and ") + ")"
 	}
