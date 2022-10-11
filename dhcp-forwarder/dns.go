@@ -9,6 +9,7 @@ import (
 
 type DNSHandler struct {
 	conn *net.UDPConn
+	addr *net.UDPAddr
 }
 
 func NewDNSHandler(c *ForwarderConfig) (ForwardHandler, error) {
@@ -17,31 +18,32 @@ func NewDNSHandler(c *ForwarderConfig) (ForwardHandler, error) {
 		return nil, err
 	}
 
-	conn, err := net.DialUDP("udp", nil, udpAddr)
+	conn, err := net.ListenUDP("udp", &net.UDPAddr{IP: net.IPv4zero, Port: 0})
 	if err != nil {
 		return nil, err
 	}
 
-	return &DNSHandler{conn: conn}, nil
+	return &DNSHandler{conn: conn, addr: udpAddr}, nil
 }
 
 func (h *DNSHandler) Forward(p gopacket.Packet) error {
 	var eth layers.Ethernet
 	var ipv4 layers.IPv4
+	var ipv6 layers.IPv6
 	var udp layers.UDP
 	var dns layers.DNS
-	parser := gopacket.NewDecodingLayerParser(layers.LayerTypeEthernet, &eth, &ipv4, &udp, &dns)
+	parser := gopacket.NewDecodingLayerParser(layers.LayerTypeEthernet, &eth, &ipv4, &ipv6, &udp, &dns)
 	decoded := make([]gopacket.LayerType, 0, 4)
 	if err := parser.DecodeLayers(p.Data(), &decoded); err != nil {
 		return err
 	}
 
 	buf := gopacket.NewSerializeBuffer()
-	opts := gopacket.SerializeOptions{}
+	opts := gopacket.SerializeOptions{FixLengths: true}
 	if err := dns.SerializeTo(buf, opts); err != nil {
 		return err
 	}
 
-	h.conn.Write(buf.Bytes())
+	h.conn.WriteTo(buf.Bytes(), h.addr)
 	return nil
 }
