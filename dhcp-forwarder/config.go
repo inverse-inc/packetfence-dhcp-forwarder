@@ -44,7 +44,7 @@ func initViper(name string) (*viper.Viper, error) {
 
 func isDisabled(v *viper.Viper, key string) bool {
 	if v.IsSet(key) {
-		if disabled := v.GetBool("DisableDHCP"); disabled {
+		if disabled := v.GetBool(key); disabled {
 			return true
 		}
 	}
@@ -88,19 +88,19 @@ func getDNSConfig(v *viper.Viper, c *Config) error {
 	config := ForwarderConfig{Type: "dns"}
 	host := v.GetString("DNSDestinationHost")
 	if host == "" {
-		return errors.New("No destination host for dhcp forwarder")
+		return errors.New("No destination host for dns forwarder")
 	}
 
 	config.Host = host
 	port := v.GetString("DNSDestinationPort")
 	if port == "" {
-		return errors.New("No destination port for dhcp forwarder")
+		return errors.New("No destination port for dns forwarder")
 	}
 
 	config.Port = port
 	filter := v.GetString("DNSFilter")
 	if filter == "" {
-		return errors.New("No filter for dhcp forwarder")
+		return errors.New("No filter for dns forwarder")
 	}
 
 	config.Filter = filter
