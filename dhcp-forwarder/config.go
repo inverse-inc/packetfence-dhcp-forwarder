@@ -125,11 +125,6 @@ func GetConfigFromFile(name string) (*Config, error) {
 		return nil, err
 	}
 
-	device := v.GetString("ListeningDevice")
-	if device == "" {
-		return nil, errors.New("No device")
-	}
-
 	config.Interface = v.GetString("ListeningDevice")
 	filters := []string{}
 	excludes := []string{}
@@ -146,25 +141,56 @@ func GetConfigFromFile(name string) (*Config, error) {
 	return config, nil
 }
 
-func (c *Config) SetupPcapForwarding() (*pcap.Handle, []*Forwarder, error) {
-	handle, err := pcap.OpenLive(c.Interface, c.SnapLen, true, pcap.BlockForever)
+func (c *Config) getHandle(i string) (*pcap.Handle, error) {
+	handle, err := pcap.OpenLive(i, c.SnapLen, true, pcap.BlockForever)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	err = handle.SetBPFFilter(c.Filter)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	forwarders := []*Forwarder{}
-	for _, fc := range c.Forwarders {
-		f, err := MakeForwarder(handle, &fc)
+	return handle, nil
+}
+
+func (c *Config) SetupPcapForwarding() ([]*InterfaceForwarder, error) {
+	if c.Interface != "" {
+		handle, err := c.getHandle(c.Interface)
 		if err != nil {
-			return nil, nil, err
+			return nil, err
 		}
-		forwarders = append(forwarders, f)
+
+		iFor, err := MakeInterfaceForwarder(handle, c)
+		if err != nil {
+			return nil, err
+		}
+		return []*InterfaceForwarder{iFor}, nil
 	}
 
-	return handle, forwarders, nil
+	interfaces, err := pcap.FindAllDevs()
+	if err != nil {
+		return nil, err
+	}
+
+	interfaceForwarders := []*InterfaceForwarder{}
+	for _, i := range interfaces {
+		if len(i.Addresses) == 0 {
+			continue
+		}
+		handle, err := c.getHandle(i.Name)
+		if err != nil {
+			return nil, err
+		}
+
+		iFor, err := MakeInterfaceForwarder(handle, c)
+		if err != nil {
+			return nil, err
+		}
+
+		interfaceForwarders = append(interfaceForwarders, iFor)
+	}
+
+	return interfaceForwarders, nil
 }
