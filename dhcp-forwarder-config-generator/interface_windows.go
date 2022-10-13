@@ -19,6 +19,10 @@ func getInterfaces() []NetworkInterface {
 	}
 
 	for _, device := range devices {
+		if len(device.Addresses) == 0 {
+			continue
+		}
+
 		netInterface := NetworkInterface{}
 		netInterface.Name = device.Name
 		match := interfacePattern.FindStringSubmatch(strings.ToLower(device.Name))
@@ -35,7 +39,11 @@ func getInterfaces() []NetworkInterface {
 
 			netInterface.Description = s
 		} else {
-			netInterface.Description = device.Name
+			if device.Description != "" {
+				netInterface.Description = device.Description
+			} else {
+				netInterface.Description = device.Name
+			}
 		}
 
 		networkInterfaces = append(networkInterfaces, netInterface)

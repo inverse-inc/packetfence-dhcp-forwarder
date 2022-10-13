@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 
 	"github.com/google/gopacket/pcap"
@@ -15,6 +16,10 @@ func getInterfaces() []NetworkInterface {
 	}
 
 	for _, device := range devices {
+		if len(device.Addresses) == 0 {
+			continue
+		}
+
 		netInterface := NetworkInterface{}
 		netInterface.Name = device.Name
 		if device.Description != "" {
@@ -22,6 +27,8 @@ func getInterfaces() []NetworkInterface {
 		} else {
 			netInterface.Description = device.Name
 		}
+
+		fmt.Printf("%08b: %s\n", device.Flags, device.Name)
 		networkInterfaces = append(networkInterfaces, netInterface)
 	}
 
