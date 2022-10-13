@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"regexp"
 	"strings"
@@ -20,7 +19,7 @@ func getInterfaces() []NetworkInterface {
 	}
 
 	for _, device := range devices {
-		netInterface = NetworkInterface{}
+		netInterface := NetworkInterface{}
 		netInterface.Name = device.Name
 		match := interfacePattern.FindStringSubmatch(strings.ToLower(device.Name))
 		if len(match) > 0 {
@@ -39,7 +38,7 @@ func getInterfaces() []NetworkInterface {
 			netInterface.Description = device.Name
 		}
 
-		networkInterfaces = append(networkInterfaces, NetInterface)
+		networkInterfaces = append(networkInterfaces, netInterface)
 	}
 
 	return networkInterfaces
