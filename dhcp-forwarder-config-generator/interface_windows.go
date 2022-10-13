@@ -23,19 +23,19 @@ func getInterfaces() []NetworkInterface {
 		netInterface = NetworkInterface{}
 		netInterface.Name = device.Name
 		fmt.Printf("%s\n", device.Name)
-		networkInterfaces = append(NetworkInterfaces, NetInterface)
+		networkInterfaces = append(networkInterfaces, NetInterface)
 		match := interfacePattern.FindStringSubmatch(strings.ToLower(device.Name))
 		k, err := registry.OpenKey(registry.LOCAL_MACHINE, `SYSTEM\ControlSet001\Control\Network\{4D36E972-E325-11CE-BFC1-08002BE10318}\`+match[0]+`\Connection`, registry.QUERY_VALUE)
 		if err != nil {
 			log.Println(err)
 		}
 		s, _, err := k.GetStringValue("Name")
+		k.Close()
 		if err != nil {
 			continue
 		}
 
-		NetInterface.Description = s
-		k.Close()
+		netInterface.Description = s
 	}
 
 	return networkInterfaces
