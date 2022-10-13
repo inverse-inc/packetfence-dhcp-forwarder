@@ -5,128 +5,168 @@ import (
 	"bytes"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net"
 	"os"
-	"regexp"
-	"strings"
+	"strconv"
 
 	"github.com/BurntSushi/toml"
-	"github.com/google/gopacket/pcap"
-	"golang.org/x/sys/windows/registry"
 )
 
 type Configuration struct {
-	DestinationHost string
-	DestinationPort int
 	ListeningDevice string
+
+	DisableDHCP     bool
+	DestinationHost string
+	DestinationPort uint16
 	Filter          string
+
+	DisableDNS         bool
+	DNSDestinationHost string
+	DNSDestinationPort uint16
+	DNSFilter          string
 }
 
-var Config Configuration
-
-type NetworkInterface struct {
-	Name        string
-	Description string
+func defaultConfig() Configuration {
+	return Configuration{
+		DisableDHCP:        true,
+		DestinationHost:    "",
+		DestinationPort:    767,
+		Filter:             "udp and port 67 and ((udp[250:1] = 0x3) or (udp[250:1] = 0x5))",
+		DisableDNS:         true,
+		DNSDestinationHost: "",
+		DNSDestinationPort: 753,
+		DNSFilter:          "udp and port 53",
+	}
 }
 
 func main() {
 	fmt.Printf("!!! You can run this program anytime from %s !!!\n\n", os.Args[0])
 	//Set values to defaults. 0x3: DHCPREQUEST. 0x5: DHCPACK. Those are the only ones required by PacketFence to track and fingerprint devices from DHCP.
-	Config.Filter = "udp and port 67 and ((udp[250:1] = 0x3) or (udp[250:1] = 0x5))"
-	SelectInterface()
-	SelectRemoteHostAndPort()
-	SaveConfig("DHCP-Forwarder.toml")
+	config := defaultConfig()
+	SelectInterface(&config)
+	SetupDHCPForwarding(&config)
+	SetupDNSForwarding(&config)
+	//SelectRemoteHostAndPort()
+	SaveConfig(&config, "DHCP-Forwarder.toml")
 }
 
-func SelectInterface() {
-	var (
-		err error
-	)
+func SelectInterface(c *Configuration) {
 
-	devices, err := pcap.FindAllDevs()
-	if err != nil {
-		log.Fatal(err)
-	}
+	networkInterfaces := getInterfaces()
 
-	interfacePattern := regexp.MustCompile("\\{(.*)\\}")
-	NetworkInterfaces := []NetworkInterface{}
-
-	for _, device := range devices {
-		NetInterface := &NetworkInterface{}
-		NetInterface.Name = device.Name
-		match := interfacePattern.FindStringSubmatch(strings.ToLower(device.Name))
-		k, err := registry.OpenKey(registry.LOCAL_MACHINE, `SYSTEM\ControlSet001\Control\Network\{4D36E972-E325-11CE-BFC1-08002BE10318}\`+match[0]+`\Connection`, registry.QUERY_VALUE)
-		if err != nil {
-			log.Println(err)
-		}
-		defer k.Close()
-		s, _, err := k.GetStringValue("Name")
-		if err != nil {
-			continue
-		}
-		NetInterface.Description = s
-		NetworkInterfaces = append(NetworkInterfaces, *NetInterface)
-	}
-
-	var InterfaceIndex int
+	var interfaceChoose string
 	fmt.Printf("Index\t:\t Interface name\t\n")
-	for row, each := range NetworkInterfaces {
+	for row, each := range networkInterfaces {
 		fmt.Printf("%d\t:\t %s\n", row, each.Description)
 	}
 
 	for {
-		fmt.Printf("\nPlease select the index number corresponding to the desired interface name:")
-		if _, err := fmt.Scan(&InterfaceIndex); err != nil {
+		fmt.Printf("\nPlease choose the number interface or all:  ")
+		if _, err := fmt.Scan(&interfaceChoose); err != nil {
 			fmt.Printf("Error. %v\n", err)
-		} else if 0 <= InterfaceIndex && InterfaceIndex < len(NetworkInterfaces) {
-			//NIC's UID returned needs to be fixated by replacing Tcpip in it's name by NPF
-			//NPF is WinPCAP device's driver name equivalent to the system's device.
-			Config.ListeningDevice = NetworkInterfaces[InterfaceIndex].Name
-			break
-		} else {
-			fmt.Printf("!!! Choice out of possible range. Choose between 0 and %v !!!\n", len(NetworkInterfaces)-1)
+			continue
 		}
+
+		if interfaceChoose == "all" {
+			c.ListeningDevice = ""
+			break
+		}
+
+		interfaceIndex, err := strconv.ParseInt(interfaceChoose, 10, 64)
+		if err == nil {
+			if 0 <= interfaceIndex && interfaceIndex < int64(len(networkInterfaces)) {
+				c.ListeningDevice = networkInterfaces[interfaceIndex].Name
+				break
+			}
+		}
+
+		fmt.Printf("!!! Choice out of possible range. Choose between 0 and %v or all !!!\n", len(networkInterfaces)-1)
 	}
 }
 
-func SelectRemoteHostAndPort() {
-	var tmp string
-	var UDPPort int
-
+func setupEnable(msg string) bool {
+	enable := ""
 	for {
-		fmt.Printf("To which IP will the selected UDP traffic be forwarded to? ")
-		if _, err := fmt.Scan(&tmp); err != nil {
-			fmt.Printf("Error. %v\n\n", err)
+		fmt.Printf("\n%s y/n: ", msg)
+		if _, err := fmt.Scan(&enable); err != nil {
+			fmt.Printf("Error. %v\n", err)
+			continue
 		}
-		TestInput := net.ParseIP(tmp)
-		if TestInput.To4() == nil {
-			fmt.Printf("!!! %v is not a valid hostv4 address !!!\n", tmp)
-		} else {
-			Config.DestinationHost = tmp
-			break
-		}
-	}
 
-	for {
-		fmt.Printf("To which UDP port will the selected UDP traffic be forwarded to? ")
-		if _, err := fmt.Scan(&UDPPort); err != nil {
-			fmt.Printf("Error. %v\n\n", err)
-		} else if 0 <= UDPPort && UDPPort <= 65535 {
-			Config.DestinationPort = UDPPort
-			break
-		} else {
-			fmt.Printf("!!! UDP port out of possible range. Choose between 0 and 65535 !!!\n")
+		if enable[0] == 'Y' || enable[0] == 'y' {
+			return true
 		}
+
+		if enable[0] == 'N' || enable[0] == 'n' {
+			return false
+		}
+
 	}
 }
 
-func SaveConfig(configFile string) {
+func SetupDHCPForwarding(c *Configuration) {
+	if !setupEnable("Enable DHCP forwarding") {
+		c.DisableDHCP = true
+		return
+	}
+
+	c.DisableDHCP = false
+	setupHostAndPort("DHCP", &c.DestinationHost, &c.DestinationPort)
+}
+
+func SetupDNSForwarding(c *Configuration) {
+	if !setupEnable("Enable DNS forwarding") {
+		c.DisableDNS = true
+		return
+	}
+
+	c.DisableDHCP = false
+	setupHostAndPort("DNS", &c.DNSDestinationHost, &c.DNSDestinationPort)
+}
+
+func setupHostAndPort(msg string, host *string, port *uint16) {
+	tmpStr := ""
+	tmpPort := -1
+	fmt.Printf("\nSetting up %s forward host and port\n", msg)
+	for {
+		fmt.Printf("To which IP will the selected %s traffic be forwarded to: ", msg)
+		if _, err := fmt.Scan(&tmpStr); err != nil {
+			fmt.Printf("Error. %v\n\n", err)
+			continue
+		}
+
+		testInput := net.ParseIP(tmpStr)
+		if testInput.To4() == nil {
+			fmt.Printf("!!! %v is not a valid hostv4 address !!!\n", tmpStr)
+			continue
+		} else {
+			*host = tmpStr
+			break
+		}
+	}
+
+	for {
+		fmt.Printf("To which UDP port will the selected %s traffic be forwarded to: ", msg)
+		if _, err := fmt.Scan(&tmpPort); err != nil {
+			fmt.Printf("Error. %v\n\n", err)
+			continue
+		}
+
+		if 0 < tmpPort && tmpPort <= 65535 {
+			*port = uint16(tmpPort)
+			break
+		}
+
+		fmt.Printf("!!! UDP port out of possible range. Choose between 1 and 65535 !!!\n")
+	}
+}
+
+func SaveConfig(c *Configuration, configFile string) {
 	buf := new(bytes.Buffer)
 	writer := bufio.NewWriter(buf)
 
 	encoder := toml.NewEncoder(writer)
-	err := encoder.Encode(Config)
+	err := encoder.Encode(c)
 
 	if err != nil {
 		fmt.Printf("Error. %s\n", err)
