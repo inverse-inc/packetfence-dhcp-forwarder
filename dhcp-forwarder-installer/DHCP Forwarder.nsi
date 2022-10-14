@@ -59,14 +59,7 @@ Function .onInit
   StrCpy $AppDataPath "$1"
 FunctionEnd
 
-Section "Winpcap Installer" SEC01
- MessageBox MB_OK \
-    "WinPCAP is required to be installed prior to going further in the installation of DHCP Forwarder."
-  File "WinPcap_4_1_3.exe"
-  ExecWait "WinPcap_4_1_3.exe"
-SectionEnd
-
-Section "Principal" SEC02
+Section "Principal" SEC01
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
   File "dhcp-forwarder-config-generator.exe"
@@ -74,13 +67,13 @@ Section "Principal" SEC02
   File "nssm.exe"
 SectionEnd
 
-Section "Configurator" SEC03
+Section "Configurator" SEC02
 	MessageBox MB_OK \
     "dhcp-forwarder-config-generator.exe will be launched from the install directory. Please answer throughfully as this configuration will be used to start the service at next step."
   ExecWait "$INSTDIR\dhcp-forwarder-config-generator.exe"
 SectionEnd
 
-Section "Service Installation" SEC04
+Section "Service Installation" SEC03
 	nsExec::Exec '$INSTDIR\nssm.exe stop DHCP-Forwarder'
 	nsExec::Exec '$INSTDIR\nssm.exe remove DHCP-Forwarder confirm'
 	MessageBox MB_OK \
@@ -94,7 +87,7 @@ Section "Service Installation" SEC04
 	${EndIf}	
 SectionEnd
 
-Section "Service Startup" SEC06
+Section "Service Startup" SEC04
 	MessageBox MB_OK \
     "DHCP Forwarder service will be started with previously generated configuration."
 	nsExec::ExecToStack '$INSTDIR\nssm.exe start DHCP-Forwarder'
@@ -141,6 +134,5 @@ Section Uninstall
   Delete "$INSTDIR\nssm.exe"
   Delete "$INSTDIR\dhcp-forwarder.exe"
   Delete "$INSTDIR\DHCP-Forwarder.toml"
-  Delete "$INSTDIR\WinPcap_4_1_3.exe"
   SetAutoClose true
 SectionEnd
