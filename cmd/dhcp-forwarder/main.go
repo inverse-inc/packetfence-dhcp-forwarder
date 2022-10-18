@@ -7,6 +7,7 @@ import (
 
 	_ "github.com/google/gopacket/layers"
 	"github.com/google/logger"
+	"github.com/inverse-inc/packetfence-dhcp-forwarder/forwarder"
 )
 
 func main() {
@@ -15,7 +16,7 @@ func main() {
 
 	// Logger setup
 	logger.Init(name, false, true, ioutil.Discard)
-	c, err := GetConfigFromFile(name)
+	c, err := forwarder.GetConfigFromFile(name)
 	checkError(err)
 	forwarders, err := c.SetupPcapForwarding()
 	checkError(err)
@@ -25,7 +26,7 @@ func main() {
 	wg := &sync.WaitGroup{}
 	for _, f := range forwarders {
 		wg.Add(1)
-		go func(f *InterfaceForwarder) {
+		go func(f *forwarder.InterfaceForwarder) {
 			defer wg.Done()
 			f.HandlePackets()
 			//logger.Info(1, "Forwarding packets to: "+host+" on udp port "+port)
