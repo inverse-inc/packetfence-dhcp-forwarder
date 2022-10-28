@@ -7,3 +7,9 @@ Part of the PacketFence-DHCP-Forwarder, 'dhcp-forwarder-installer' helps Microso
 
  * The NSI script needed to generate the installer is "DHCP Forwarder.nsi"
  * Files are installed under "C:\Program Files (x86)\DHCP Forwarder".
+
+Creating the Installer
+========================
+
+Install [NSIS](https://nsis.sourceforge.io/Download) compiler.
+Download [nsse.exe] https://nssm.cc/download and place it here.
