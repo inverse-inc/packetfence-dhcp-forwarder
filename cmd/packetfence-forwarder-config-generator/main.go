@@ -119,7 +119,7 @@ func SetupDNSForwarding(c *Configuration) {
 		return
 	}
 
-	c.DisableDHCP = false
+	c.DisableDNS = false
 	setupHostAndPort("DNS", &c.DNSDestinationHost, &c.DNSDestinationPort)
 }
 
