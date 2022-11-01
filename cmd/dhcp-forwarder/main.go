@@ -12,7 +12,7 @@ import (
 
 func main() {
 	//Setup logging
-	const name = "DHCP-Forwarder"
+	const name = "Packetfence-Forwarder"
 
 	// Logger setup
 	logger.Init(name, false, true, ioutil.Discard)
