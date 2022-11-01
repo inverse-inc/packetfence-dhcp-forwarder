@@ -145,7 +145,7 @@ copy cmd/packetfence-forwarder-config-generator/packetfence-forwarder-config-gen
 
 Place yourself in the installer directory:
 ```
-cd packetfence-forwarder-installer
+cd installer
 ```
  * extract nssm.exe from [here](https://nssm.cc/release/nssm-2.24.zip)
 
@@ -154,8 +154,10 @@ The following files should be present under current working directory:
  * installer/Packetfence-Forwarder.nsi
  * installer/packetfence-forwarder.exe
  * installer/nssm.exe
+ * installer/build.bat
 
 
+Run the build.bat
 You can now invoke the installer creator through "C:\Program Files (x86)\NSIS\NSIS.exe"
  
  * click "Compile NSI scripts"
