@@ -46,8 +46,7 @@ func main() {
 	SelectInterface(&config)
 	SetupDHCPForwarding(&config)
 	SetupDNSForwarding(&config)
-	//SelectRemoteHostAndPort()
-	SaveConfig(&config, "DHCP-Forwarder.toml")
+	SaveConfig(&config, "Packetfence-Forwarder.toml")
 }
 
 func SelectInterface(c *Configuration) {
