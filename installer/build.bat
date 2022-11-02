@@ -7,4 +7,4 @@ cd ..\packetfence-forwarder-config-generator
 copy packetfence-forwarder-config-generator.exe ..\..\installer
 
 cd ..\..\installer
-"c:\Program Files (x86)\NSIS\makensis.exe" /X"SetCompressor /FINAL lzma" Packetfence-Forwarder.nsi
+"c:\Program Files (x86)\NSIS\makensis.exe" /X"SetCompressor /FINAL lzma" PacketFence-Forwarder.nsi

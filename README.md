@@ -1,4 +1,4 @@
-Packetfence-Forwarder
+PacketFence-Forwarder
 ==============
 
 This tool captures and forwards a subset of DHCP (specifically DHCPREQUEST and DHCPACK) and/or DNS traffic from a Windows x64 DHCP server to a destination IP and port.
@@ -9,10 +9,10 @@ Those contain all types of DHCP packets but less to none DHCPACK which confirms 
 DHCP traffic is useful to PacketFence to link MAC adresses and IP addresses, while also helping Fingerbank's fingerprinting process.
 Again, the only useful packets to PacketFence are DHCPREQUEST and DHCPACK.
 
-In short, if Packetfence-Forwarder can be deployed centrally, it should be done.
+In short, if PacketFence-Forwarder can be deployed centrally, it should be done.
 In that case, only useful packets are captured and forwarded from the source, which reduces configuration, transport, processing and storage costs of useless packets, while removing the need to process them to actually neglect them at the destination host.
 
-[Download the installer here.](https://inverse.ca/downloads/PacketFence/windows-packetfence-forwarder/Packetfence-Forwarder-Installer.exe)
+[Download the installer here.](https://inverse.ca/downloads/PacketFence/windows-packetfence-forwarder/PacketFence-Forwarder-Installer.exe)
 
 
 Binaries
@@ -25,15 +25,15 @@ DHCPREQUEST and DHCPACK packets are the ones being the most important for Packet
 
 This fingerprinting and localisation process helps a lot in determining violation triggers condition.
 
-With the help of Packetfence-Forwarder, those DHCP packets can be obtained directly and easily from the source.
+With the help of PacketFence-Forwarder, those DHCP packets can be obtained directly and easily from the source.
 
-Alternatively, IP helpers can be configured on each switch to forward DHCP traffic to PacketFence, but only broadcast packets can be captured by them, which is less precise. Deploying Packetfence-Forwarder is simple and centralized.
+Alternatively, IP helpers can be configured on each switch to forward DHCP traffic to PacketFence, but only broadcast packets can be captured by them, which is less precise. Deploying PacketFence-Forwarder is simple and centralized.
 
-Packetfence-forwarder is based on gopacket and depends upon WinPCAP to select the requested packets through a BPF, which is really fast. Captured traffic is then forwarded to a configured host and port.
+PacketFence-forwarder is based on gopacket and depends upon WinPCAP to select the requested packets through a BPF, which is really fast. Captured traffic is then forwarded to a configured host and port.
 
 A default BPF is produced by the configuration generator. That filter can be manually modified in the configuration file by the user.
 
-Packetfence-Forwarder requires a Packetfence-Forwarder.toml file to be present in it's working directory (installation directory). Packetfence-Forwarder.toml is generated from packetfence-forwarder-config-generator.exe at installation time, but can be run from the installation directory anytime.
+PacketFence-Forwarder requires a Packetfence-Forwarder.toml file to be present in it's working directory (installation directory). Packetfence-Forwarder.toml is generated from packetfence-forwarder-config-generator.exe at installation time, but can be run from the installation directory anytime.
 
 packetfence-forwarder-config-generator.exe
 -----------------------------------
@@ -46,13 +46,13 @@ Does:
 4. Ask if DNS forwarding should be enabled.
 5. Ask for IP address to which DNS captured traffic will be send to.
 6. Ask for UDP  port to which DNS captured traffic will be sent to.
-8. Store those values in Packetfence-Forwarder.toml in the working directory.
+8. Store those values in PacketFence-Forwarder.toml in the working directory.
 7. Store default filters value, which selects DHCPACK and DHCPREQUESTS in a DHCP mask and DNS.
 
 
 Note: Do not select a wireless device, it will not work.
 
-The Packetfence-Forwarder service needs to be restarted:
+The PacketFence-Forwarder service needs to be restarted:
 
 1. After a configuration change.
 2. When the server goes to sleep and resumes.
@@ -62,7 +62,7 @@ The installer
 -------------
 The installer will:
 
-1. Install all packaged files under "C:\Program Files (x86)\Packetfence-Forwarder"
+1. Install all packaged files under "C:\Program Files (x86)\PacketFence-Forwarder"
 2. Run packetfence-forwarder-config-generator.exe which generates a configuration file in installation directory.
 3. Install packetfence-forwarder.exe as a service with the help of nssm.
 4. Start packetfence-forwarder.exe with the help of nssm.
@@ -89,15 +89,15 @@ git clone https://github.com/inverse-inc/packetfence-dhcp-forwarder.git
 
 packetfence-forwarder-config-generator:
 
-* Generates Packetfence-Forwarder.toml configuration based on user selected NIC from "getmac /fo csv /v"  output and fix the UID name. It is currently impossible to use gopacket to list human readable interface names so the user can choose from them and map it to its UUID.
+* Generates PacketFence-Forwarder.toml configuration based on user selected NIC from "getmac /fo csv /v"  output and fix the UID name. It is currently impossible to use gopacket to list human readable interface names so the user can choose from them and map it to its UUID.
 
 packetfence-forwarder:
 
-* Applies Packetfence-Forwarder.toml configuration from the working directory sends captured UDP packets to configured destination host and port.
+* Applies PacketFence-Forwarder.toml configuration from the working directory sends captured UDP packets to configured destination host and port.
 
 packetfence-forwarder-installer:
 
-* The NSI script to generate the installer is "Packetfence-Forwarder.nsi".
+* The NSI script to generate the installer is "PacketFence-Forwarder.nsi".
 
 Files are installed under "C:\Program Files (x86)\DHCP Forwarder".
 
@@ -130,7 +130,7 @@ Compile packetfence-forwarder.exe and packetfence-forwarder-config-generator.exe
 build.bat
 ```
 
-You now have an installer under "c:\go\src\packetfence-packetfence-forwarder\installer\Packetfence-Forwarder-Installer.exe"
+You now have an installer under "c:\go\src\packetfence-packetfence-forwarder\installer\PacketFence-Forwarder-Installer.exe"
 
 
 Troubleshoot
@@ -158,12 +158,12 @@ NSSM
 ----
 * The nssm service installation might fail if the configured interface is not in a connected state
 * The nssm binary can be launched from the command line from the program files directory
-* nssm configured service name is Packetfence-Forwarder
+* nssm configured service name is PacketFence-Forwarder
 
 The following commands should help:
 
-* nssm status Packetfence-Forwarder (should show a running state)
-* nssm edit Packetfence-Forwarder
+* nssm status PacketFence-Forwarder (should show a running state)
+* nssm edit PacketFence-Forwarder
 
 The service is executed with default System account. Edit accordingly.
 
@@ -184,4 +184,4 @@ Installer:
 * 1.1: Default "Filter" UDP port changed from 68 to 67, to make sure relays are also catched.
 * 1.2: Configurator changed to not depend on english literals at installation.
 * 1.3: New installator containing unified Windows and Linux shared codebase for eventlogging(google/logger).
-* 1.4: Adding support for DNS forwarding rename to Packetfence-Forwarder.
+* 1.4: Adding support for DNS forwarding rename to PacketFence-Forwarder.

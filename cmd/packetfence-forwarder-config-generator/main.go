@@ -46,7 +46,7 @@ func main() {
 	SelectInterface(&config)
 	SetupDHCPForwarding(&config)
 	SetupDNSForwarding(&config)
-	SaveConfig(&config, "Packetfence-Forwarder.toml")
+	SaveConfig(&config, "PacketFence-Forwarder.toml")
 }
 
 func SelectInterface(c *Configuration) {

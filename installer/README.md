@@ -5,8 +5,8 @@ packetfence-forwarder-installer
 
 Part of the PacketFence-Forwarder, 'packetfence-forwarder-installer' helps Microsoft Windows based system step-by-step installation.
 
- * The NSI script needed to generate the installer is "Packetfence-Forwarder.nsi"
- * Files are installed under "C:\Program Files (x86)\Packetfence Forwarder".
+ * The NSI script needed to generate the installer is "PacketFence-Forwarder.nsi"
+ * Files are installed under "C:\Program Files (x86)\PacketFence Forwarder".
 
 Creating the Installer
 ========================

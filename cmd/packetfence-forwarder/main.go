@@ -12,7 +12,7 @@ import (
 
 func main() {
 	//Setup logging
-	const name = "Packetfence-Forwarder"
+	const name = "PacketFence-Forwarder"
 
 	// Logger setup
 	logger.Init(name, false, true, ioutil.Discard)
