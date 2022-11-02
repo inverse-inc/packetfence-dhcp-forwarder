@@ -60,19 +60,19 @@ func getDHCPConfig(v *viper.Viper, c *Config) error {
 	config := ForwarderConfig{Type: "dhcp"}
 	host := v.GetString("DestinationHost")
 	if host == "" {
-		return errors.New("No destination host for dhcp forwarder")
+		return errors.New("No destination host for DHCP forwarder")
 	}
 
 	config.Host = host
 	port := v.GetString("DestinationPort")
 	if port == "" {
-		return errors.New("No destination port for dhcp forwarder")
+		return errors.New("No destination port for DHCP forwarder")
 	}
 
 	config.Port = port
 	filter := v.GetString("Filter")
 	if filter == "" {
-		return errors.New("No filter for dhcp forwarder")
+		return errors.New("No filter for DHCP forwarder")
 	}
 
 	config.Filter = filter
@@ -88,19 +88,19 @@ func getDNSConfig(v *viper.Viper, c *Config) error {
 	config := ForwarderConfig{Type: "dns"}
 	host := v.GetString("DNSDestinationHost")
 	if host == "" {
-		return errors.New("No destination host for dns forwarder")
+		return errors.New("No destination host for DNS forwarder")
 	}
 
 	config.Host = host
 	port := v.GetString("DNSDestinationPort")
 	if port == "" {
-		return errors.New("No destination port for dns forwarder")
+		return errors.New("No destination port for DNS forwarder")
 	}
 
 	config.Port = port
 	filter := v.GetString("DNSFilter")
 	if filter == "" {
-		return errors.New("No filter for dns forwarder")
+		return errors.New("No filter for DNS forwarder")
 	}
 
 	config.Filter = filter
