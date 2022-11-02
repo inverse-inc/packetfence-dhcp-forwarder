@@ -41,15 +41,16 @@ func defaultConfig() Configuration {
 
 func main() {
 	fmt.Printf("!!! You can run this program anytime from %s !!!\n\n", os.Args[0])
+	scanner := bufio.NewScanner(os.Stdin)
 	//Set values to defaults. 0x3: DHCPREQUEST. 0x5: DHCPACK. Those are the only ones required by PacketFence to track and fingerprint devices from DHCP.
 	config := defaultConfig()
-	SelectInterface(&config)
-	SetupDHCPForwarding(&config)
-	SetupDNSForwarding(&config)
+	SelectInterface(scanner, &config)
+	SetupDHCPForwarding(scanner, &config)
+	SetupDNSForwarding(scanner, &config)
 	SaveConfig(&config, "PacketFence-Forwarder.toml")
 }
 
-func SelectInterface(c *Configuration) {
+func SelectInterface(scanner *bufio.Scanner, c *Configuration) {
 
 	networkInterfaces := getInterfaces()
 
@@ -60,13 +61,11 @@ func SelectInterface(c *Configuration) {
 	}
 
 	for {
-		fmt.Printf("\nPlease choose the number interface or all:  ")
-		if _, err := fmt.Scan(&interfaceChoose); err != nil {
-			fmt.Printf("Error. %v\n", err)
-			continue
-		}
+		fmt.Printf("\nPlease choose the number interface or press enter for all: ")
+		scanner.Scan()
+		interfaceChoose = scanner.Text()
 
-		if interfaceChoose == "all" {
+		if interfaceChoose == "all" || interfaceChoose == "" {
 			c.ListeningDevice = ""
 			break
 		}
@@ -83,12 +82,13 @@ func SelectInterface(c *Configuration) {
 	}
 }
 
-func setupEnable(msg string) bool {
-	enable := ""
+func setupEnable(scanner *bufio.Scanner, msg string) bool {
 	for {
 		fmt.Printf("\n%s y/n: ", msg)
-		if _, err := fmt.Scan(&enable); err != nil {
-			fmt.Printf("Error. %v\n", err)
+		scanner.Scan()
+		enable := scanner.Text()
+
+		if enable == "" {
 			continue
 		}
 
@@ -103,35 +103,34 @@ func setupEnable(msg string) bool {
 	}
 }
 
-func SetupDHCPForwarding(c *Configuration) {
-	if !setupEnable("Enable DHCP forwarding") {
+func SetupDHCPForwarding(scanner *bufio.Scanner, c *Configuration) {
+	if !setupEnable(scanner, "Enable DHCP forwarding") {
 		c.DisableDHCP = true
 		return
 	}
 
 	c.DisableDHCP = false
-	setupHostAndPort("DHCP", &c.DestinationHost, &c.DestinationPort)
+	setupHostAndPort(scanner, "DHCP", &c.DestinationHost, &c.DestinationPort, 767)
 }
 
-func SetupDNSForwarding(c *Configuration) {
-	if !setupEnable("Enable DNS forwarding") {
+func SetupDNSForwarding(scanner *bufio.Scanner, c *Configuration) {
+	if !setupEnable(scanner, "Enable DNS forwarding") {
 		c.DisableDNS = true
 		return
 	}
 
 	c.DisableDNS = false
-	setupHostAndPort("DNS", &c.DNSDestinationHost, &c.DNSDestinationPort)
+	setupHostAndPort(scanner, "DNS", &c.DNSDestinationHost, &c.DNSDestinationPort, 753)
 }
 
-func setupHostAndPort(msg string, host *string, port *uint16) {
-	tmpStr := ""
-	tmpPort := -1
+func setupHostAndPort(scanner *bufio.Scanner, msg string, host *string, port *uint16, defaultPort uint16) {
 	fmt.Printf("\nSetting up %s forward host and port\n", msg)
 	for {
 		fmt.Printf("To which IP will the selected %s traffic be forwarded to: ", msg)
-		if _, err := fmt.Scan(&tmpStr); err != nil {
-			fmt.Printf("Error. %v\n\n", err)
-			continue
+		tmpStr := ""
+		for tmpStr == "" {
+			scanner.Scan()
+			tmpStr = scanner.Text()
 		}
 
 		testInput := net.ParseIP(tmpStr)
@@ -144,10 +143,18 @@ func setupHostAndPort(msg string, host *string, port *uint16) {
 		}
 	}
 
+	*port = defaultPort
 	for {
-		fmt.Printf("To which UDP port will the selected %s traffic be forwarded to: ", msg)
-		if _, err := fmt.Scan(&tmpPort); err != nil {
-			fmt.Printf("Error. %v\n\n", err)
+		fmt.Printf("To which UDP port will the selected %s traffic be forwarded to press enter for the default port %d: ", msg, defaultPort)
+		scanner.Scan()
+		tmpStr := scanner.Text()
+		if tmpStr == "" {
+			break
+		}
+
+		tmpPort, err := strconv.ParseInt(tmpStr, 10, 16)
+		if err != nil {
+			fmt.Printf("%s\n", err.Error())
 			continue
 		}
 
