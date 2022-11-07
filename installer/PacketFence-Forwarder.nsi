@@ -39,6 +39,50 @@
 
 !define CSIDL_COMMONAPPDATA '0x23'
 
+
+Function openLinkNewWindow
+  Push $3
+  Exch
+  Push $2
+  Exch
+  Push $1
+  Exch
+  Push $0
+  Exch
+
+  ReadRegStr $0 HKCR "http\shell\open\command" ""
+  StrCpy $2 '"'
+  StrCpy $1 $0 1
+  StrCmp $1 $2 +2 # if path is not enclosed in " look for space as final char
+    StrCpy $2 ' '
+  StrCpy $3 1
+  loop:
+    StrCpy $1 $0 1 $3
+    StrCmp $1 $2 found
+    StrCmp $1 "" found
+    IntOp $3 $3 + 1
+    Goto loop
+
+  found:
+    StrCpy $1 $0 $3
+    StrCmp $2 " " +2
+      StrCpy $1 '$1"'
+
+  Pop $0
+  Exec '$1 $0'
+  Pop $0
+  Pop $1
+  Pop $2
+  Pop $3
+FunctionEnd
+
+!macro _OpenURL URL
+Push "${URL}"
+Call openLinkNewWindow
+!macroend
+
+!define OpenURL '!insertmacro "_OpenURL"'
+
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
@@ -58,6 +102,23 @@ Function .onInit
   System::Call 'shell32::SHGetSpecialFolderPath(i $HWNDPARENT, t .r1, i ${CSIDL_COMMONAPPDATA}, i0)i.r0'
   StrCpy $AppDataPath "$1"
 FunctionEnd
+
+Section
+findnpcap:
+  GetDllVersion "C:\Program Files\Npcap\NPFInstall.exe" $R0 $R1
+  ${If} "$R0" != ""
+     return
+  ${EndIf}
+  MessageBox MB_OKCANCEL "Npcap must be installed to continue. Download Npcap?" IDOK openurl IDCANCEL byebye
+
+openurl:
+    ${OpenURL} "https://npcap.com/#download"
+  MessageBox MB_RETRYCANCEL "Retry check for Npcap" IDRETRY findnpcap IDCANCEL byebye
+
+byebye:
+    Abort "Please install npcap you can download it https://npcap.com/#download"
+
+SectionEnd
 
 Section "Principal" SEC01
   SetOutPath "$INSTDIR"
@@ -134,5 +195,8 @@ Section Uninstall
   Delete "$INSTDIR\nssm.exe"
   Delete "$INSTDIR\packetfence-forwarder.exe"
   Delete "$INSTDIR\PacketFence-Forwarder.toml"
+  Delete "$INSTDIR\uninst.exe"
+  SetOutPath "$PROGRAMFILES"
+  RmDir /r /REBOOTOK "$INSTDIR"
   SetAutoClose true
 SectionEnd
