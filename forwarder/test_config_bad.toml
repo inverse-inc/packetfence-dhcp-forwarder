@@ -1,0 +1,10 @@
+ListeningDevice = "eth0"
+
+DestinationHost = "1.1.1.1"
+DestinationPort = 767
+Filter = "udp and port 68 and ((udp[250:1] = 0x3) or (udp[250:1] = 0x5))"
+
+DNSDestinationHost = "1.1.1.1"
+DNSDestinationPort = 753
+DNSFilter = "udp and port 53"
+

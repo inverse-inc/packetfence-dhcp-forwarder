@@ -1,0 +1,14 @@
+#Global config
+#ListeningDevice = "lo"
+
+#DHCP config
+DisableDHCP=false
+DestinationHost = "localhost"
+DestinationPort = 767
+Filter = "udp and port 68 and ((udp[250:1] = 0x3) or (udp[250:1] = 0x5))"
+
+#DNS config
+DisableDNS=false
+DNSDestinationHost = "localhost"
+DNSDestinationPort = 753
+DNSFilter = "udp and port 53"
